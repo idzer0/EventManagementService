@@ -15,7 +15,7 @@ public interface IEventService
     Task<EventResponse?> GetByIdAsync(Guid eventId);
 
     /// <summary>
-    /// Создать набор событий
+    /// Создать событие
     /// </summary>
     Task<EventResponse> CreateAsync(EventRequest events);
     
