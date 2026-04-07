@@ -77,11 +77,12 @@ public class EventService : IEventService
         if (updateEvent.EndAt <= updateEvent.StartAt)
             throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала");
 
-        _context.Events.Update(MapToEntity(id, updateEvent));        
+        var entity = MapToEntity(id, updateEvent);
+        _context.Events.Update(entity);        
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("Событие создано с Id: {Id}", id);
-        return MapToResponse(existing);
+        _logger.LogInformation("Событие обновлено с Id: {Id}", id);
+        return MapToResponse(entity);
     }
 
     /// <inheritdoc/>
