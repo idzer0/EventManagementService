@@ -1,6 +1,7 @@
 namespace EventManagementService.DiContext.Application;
 
 using EventManagementService.Services;
+using EventManagementService.Contracts;
 
 public static class DependencyInjection
 {

@@ -1,9 +1,11 @@
 using EventManagementService.DiContext.Presentation;
 using EventManagementService.DiContext.Application;
-
+using EventManagementService.DiContext.Infrastructure;
+using EventManagementService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddInfrastructure();
 builder.Services.AddApplication();
 builder.Services.AddPresentation();
 
@@ -26,7 +28,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapControllers();
+app.MapControllers();      
 
 app.Run();
 

@@ -1,3 +1,5 @@
+namespace EventManagementService.Contracts;
+
 using EventManagementService.Models;
 
 public interface IEventService

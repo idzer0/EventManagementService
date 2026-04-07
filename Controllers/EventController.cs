@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using EventManagementService.Models;
+using EventManagementService.Contracts;
 
 namespace EventManagementService.Controllers;
 
@@ -7,7 +8,7 @@ namespace EventManagementService.Controllers;
 /// Контроллер обработки событий
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("events")]
 public class EventController : ControllerBase
 {
     private readonly IEventService _eventService;

@@ -16,3 +16,15 @@ REST API для управления мероприятиями.
    ```bash
    git clone https://github.com/idzer0/EventManagementService.git
    cd EventManagementService
+
+2. Востановить зависимости:
+    dotnet restore
+
+3. Собрать проект:
+    dotnet build
+
+4. Запустить приложение:
+    dotnet run
+
+5. Открыть Swagger UI:
+https://localhost:5001/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).

@@ -1,50 +1,56 @@
 namespace EventManagementService.Services;
 
+using EventManagementService.Contracts;
+using EventManagementService.Infrastructure;
 using EventManagementService.Models;
+using Microsoft.EntityFrameworkCore;
 
 public class EventService : IEventService
 {
-    private readonly List<Event> _events = new();
+    private readonly AppDbContext _context;
     private readonly ILogger<EventService> _logger;
 
-    public EventService(ILogger<EventService> logger)
+    public EventService(AppDbContext context, ILogger<EventService> logger)
     {
+        _context = context;
         _logger = logger;
 
-        //тестовое событие 
-        _events.Add(new Event
+        //добавляем тестовую запись
+        if (_context.Events.Count() == 0)
         {
-            Id = Guid.NewGuid(),
-            Title = "Тестовое событие",
-            Description = "Это событие создано с целью проверки работоспособности сервиса",
-            StartAt = DateTime.UtcNow.AddDays(1),
-            EndAt = DateTime.UtcNow.AddDays(2)
-        });
+            _context.Events.Add(new EventEntity {
+                Id = Guid.NewGuid(),
+                Title = "Тестовое событие",
+                Description = "Это событие создано с целью проверки работоспособности сервиса",
+                StartAt = DateTime.UtcNow.AddDays(1),
+                EndAt = DateTime.UtcNow.AddDays(2)      
+            });
+            _context.SaveChanges();
+        }
     }
 
     /// <inheritdoc/>
-    public Task<IEnumerable<EventResponse>> GetAllAsync()
+    public async Task<IEnumerable<EventResponse>> GetAllAsync()
     {
-        var result = _events.Select(e => MapToResponse(e));
-        return Task.FromResult(result);
+        var events = await _context.Events.ToListAsync();
+        return events.Select(e => MapToResponse(e));
     }
 
     /// <inheritdoc/>
-    public Task<EventResponse?> GetByIdAsync(Guid id)
+    public async Task<EventResponse?> GetByIdAsync(Guid id)
     {
-        var ev = _events.FirstOrDefault(e => e.Id == id);
+        var ev = await _context.Events.FirstOrDefaultAsync(e => e.Id == id);
 
-        return Task.FromResult(ev is not null ? MapToResponse(ev) : null);
+        return ev is not null ? MapToResponse(ev) : null;
     }
 
     /// <inheritdoc/>
-    public Task<EventResponse> CreateAsync(EventRequest eventCreate)
+    public async Task<EventResponse> CreateAsync(EventRequest eventCreate)
     {
         if (eventCreate.EndAt <= eventCreate.StartAt)
-            throw new ArgumentException("Дата окочания события должна быть больше или равна дате начала");
+            throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала");
 
-        var newEvent = new Event
-        {
+        var newEvent = new EventEntity {
             Id = Guid.NewGuid(),
             Title = eventCreate.Title,
             Description = eventCreate.Description ?? string.Empty,
@@ -52,48 +58,60 @@ public class EventService : IEventService
             EndAt = eventCreate.EndAt
         };
 
-        _events.Add(newEvent);
+        await _context.Events.AddAsync(newEvent);
+        await _context.SaveChangesAsync();
+        
         _logger.LogInformation("Событие создано с Id: {Id}", newEvent.Id);
 
-        return Task.FromResult(MapToResponse(newEvent));
+        return MapToResponse(newEvent);
     }
 
     /// <inheritdoc/>
-    public Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEvent)
+    public async Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEvent)
     {
-        var existing = _events.FirstOrDefault(e => e.Id == id);
+        var existing = _context.Events.FirstOrDefault(e => e.Id == id);
         if (existing is null)
-            return Task.FromResult<EventResponse?>(null);
+            return null;
 
         // Бизнес-валидация: EndAt > StartAt
         if (updateEvent.EndAt <= updateEvent.StartAt)
-            throw new ArgumentException("Дата окочания события должна быть больше или равна дате начала");
+            throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала");
 
-        existing.Title = updateEvent.Title;
-        existing.Description = updateEvent.Description ?? string.Empty;
-        existing.StartAt = updateEvent.StartAt;
-        existing.EndAt = updateEvent.EndAt;
+        _context.Events.Update(MapToEntity(id, updateEvent));        
+        await _context.SaveChangesAsync();
 
         _logger.LogInformation("Событие создано с Id: {Id}", id);
-        return Task.FromResult<EventResponse?>(MapToResponse(existing));
+        return MapToResponse(existing);
     }
 
     /// <inheritdoc/>
-    public Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        var ev = _events.FirstOrDefault(e => e.Id == id);
+        var ev = _context.Events.FirstOrDefault(e => e.Id == id);
         if (ev is null)
-            return Task.FromResult(false);
+            return false;
 
-        _events.Remove(ev);
+        _context.Events.Remove(ev);
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation("Событие с: {Id} удалено", id);
-        return Task.FromResult(true);
+        return true;
     }
 
-    private static EventResponse MapToResponse(Event ev) =>
+    private static EventResponse MapToResponse(EventEntity ev) =>
         new()
         {
             Id = ev.Id,
+            Title = ev.Title,
+            Description = ev.Description,
+            StartAt = ev.StartAt,
+            EndAt = ev.EndAt
+        };
+
+    private static EventEntity MapToEntity(Guid Id, EventRequest ev) =>
+        new()
+        {
+            Id = Id,
             Title = ev.Title,
             Description = ev.Description,
             StartAt = ev.StartAt,
