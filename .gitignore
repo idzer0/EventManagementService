@@ -1,0 +1,66 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.pidb
+*.log
+*.vs/
+*.vscode/
+*.idea/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.swp
+*.sln.ide
+*.sln.docstates
+
+# Dotnet tools
+tools/
+*.lock.json
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs
+logs/
+*.log
+*.htm
+*.html
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+nuget.exe
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+*.coveragex
+
+# Docker
+.dockerignore
+docker-compose*.override.yml
+
+# Entity Framework
+Migrations/efcorelog*.txt
