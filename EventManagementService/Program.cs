@@ -2,6 +2,7 @@ using EventManagementService.DiContext.Presentation;
 using EventManagementService.DiContext.Application;
 using EventManagementService.DiContext.Infrastructure;
 using EventManagementService.Infrastructure;
+using EventManagementService.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ if (builder.Environment.IsDevelopment())
 } 
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

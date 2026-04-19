@@ -17,15 +17,12 @@ public class EventController : ControllerBase
         _eventService = eventService;
     }
 
-    /// <summary>
-    /// Возвращает список всех событий
-    /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<EventResponse>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<EventResponse>>> GetAll([FromQuery] EventsFilter filter)
     {
-        var events = await _eventService.GetAllAsync();
-        return Ok(events);
+        var result = await _eventService.GetPaginatedEventsAsync(filter);
+        return Ok(result);
     }
 
     /// <summary>
