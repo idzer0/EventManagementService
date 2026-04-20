@@ -24,7 +24,16 @@ REST API для управления мероприятиями.
     dotnet build
 
 4. Запустить приложение:
-    dotnet run
+    dotnet run --project ./EventManagementService/EventManagementService.csproj
 
 5. Открыть Swagger UI:
-https://localhost:5001/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
+http://localhost:5244/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
+
+## Тестирование
+
+Проект использует **xUnit**, **Moq** и **FluentAssertions** для юнит-тестирования.
+
+### Запуск тестов
+
+```bash
+dotnet test

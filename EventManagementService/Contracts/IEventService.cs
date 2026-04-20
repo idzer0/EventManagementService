@@ -1,6 +1,6 @@
-namespace EventManagementService.Contracts;
-
 using EventManagementService.Models;
+
+namespace EventManagementService.Contracts;
 
 public interface IEventService
 {
@@ -10,6 +10,11 @@ public interface IEventService
     Task<IEnumerable<EventResponse>> GetAllAsync();
 
     /// <summary>
+    /// Возвращает события по фильтру для постраничного вывода
+    /// </summary>
+    Task<PaginatedResponse<EventResponse>> GetPaginatedEventsAsync(EventsFilter filter);
+
+    /// <summary>
     /// Получить событие по Id
     /// </summary>
     Task<EventResponse?> GetByIdAsync(Guid eventId);
@@ -17,12 +22,12 @@ public interface IEventService
     /// <summary>
     /// Создать событие
     /// </summary>
-    Task<EventResponse> CreateAsync(EventRequest events);
+    Task<EventResponse> CreateAsync(EventRequest createEventRequest);
     
     /// <summary>
     /// Обновить событие
     /// </summary>
-    Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEvent);
+    Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEventRequest);
 
     /// <summary>
     /// Удалить событие

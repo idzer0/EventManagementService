@@ -17,15 +17,13 @@ public class EventController : ControllerBase
         _eventService = eventService;
     }
 
-    /// <summary>
-    /// Возвращает список всех событий
-    /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<EventResponse>>> GetAll()
+    public async Task<ActionResult<PaginatedResponse<EventResponse>>> GetAll([FromQuery] EventsFilter filter)
     {
-        var events = await _eventService.GetAllAsync();
-        return Ok(events);
+        var result = await _eventService.GetPaginatedEventsAsync(filter);
+        
+        return Ok(result);
     }
 
     /// <summary>
@@ -37,8 +35,7 @@ public class EventController : ControllerBase
     public async Task<ActionResult<EventResponse>> GetById(Guid id)
     {
         var ev = await _eventService.GetByIdAsync(id);
-        if (ev is null)
-            return NotFound(new { message = $"Событие с Id {id} не найдено" });
+
         return Ok(ev);
     }
 
@@ -50,15 +47,9 @@ public class EventController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EventResponse>> Create([FromBody] EventRequest createEvent)
     {
-        try
-        {
-            var created = await _eventService.CreateAsync(createEvent);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var created = await _eventService.CreateAsync(createEvent);
+
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>
@@ -70,17 +61,9 @@ public class EventController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EventResponse>> Update(Guid id, [FromBody] EventRequest updateEvent)
     {
-        try
-        {
-            var updated = await _eventService.UpdateAsync(id, updateEvent);
-            if (updated is null)
-                return NotFound(new { message = $"Событие с Id {id} не найдено" });
-            return Ok(updated);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var updated = await _eventService.UpdateAsync(id, updateEvent);
+
+        return Ok(updated);
     }
 
     /// <summary>
@@ -91,8 +74,7 @@ public class EventController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        if (!await _eventService.DeleteAsync(id))
-            return NotFound(new { message = $"Событие с Id {id} не найдено" });
+        await _eventService.DeleteAsync(id);
 
         return NoContent();
     }
