@@ -74,8 +74,7 @@ public class EventController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        if (!await _eventService.DeleteAsync(id))
-            return NotFound(new { message = $"Событие с Id {id} не найдено" });
+        await _eventService.DeleteAsync(id);
 
         return NoContent();
     }
