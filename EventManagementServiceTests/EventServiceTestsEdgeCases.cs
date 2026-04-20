@@ -59,10 +59,13 @@ public class EventServiceTestsEdgeCases
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(2);
     }
+
     
     [Fact]
-    public async Task GetPaginatedEventsAsync_PageSizeLessThanOne_UsesDefaultValue()
+    public async Task GetPaginatedEventsAsync_PageLessThanOne_UsesDefaultValue()
     {
+        var filter = new EventsFilter { Page = 0, PageSize = 1 }; // Невалидный номер страницы
+                
         var events = new List<EventEntity>();
         for (int i = 1; i <= 5; i++)
         {
@@ -75,13 +78,38 @@ public class EventServiceTestsEdgeCases
             });
         }
         
-        var filter = new EventsFilter { Page = 1, PageSize = 0 }; // Невалидный размер страницы
-        
         var service = _dbContextMocker.ArrangeEventServiceTestCase(
             nameof(this.GetPaginatedEventsAsync_PageSizeLessThanOne_UsesDefaultValue), events);
 
-        var result = await service.GetPaginatedEventsAsync(filter);
+        Func<Task> act = async () => await service.GetPaginatedEventsAsync(filter);
+        
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("Номер страницы и размер страницы не могут быть равны нулю.");
+    }
 
-        result.Items.Should().NotBeNull();
+   [Fact]
+    public async Task GetPaginatedEventsAsync_PageSizeLessThanOne_UsesDefaultValue()
+    {
+        var filter = new EventsFilter { Page = 1, PageSize = 0 }; // Невалидный размер страницы
+                
+        var events = new List<EventEntity>();
+        for (int i = 1; i <= 5; i++)
+        {
+            events.Add(new EventEntity 
+            { 
+                Id = Guid.NewGuid(), 
+                Title = $"Event {i}", 
+                StartAt = DateTime.UtcNow.AddDays(i),
+                EndAt = DateTime.UtcNow.AddDays(i + 1)
+            });
+        }
+
+        var service = _dbContextMocker.ArrangeEventServiceTestCase(
+            nameof(this.GetPaginatedEventsAsync_PageSizeLessThanOne_UsesDefaultValue), events);
+
+        Func<Task> act = async () => await service.GetPaginatedEventsAsync(filter);
+        
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("Номер страницы и размер страницы не могут быть равны нулю.");
     }
 }

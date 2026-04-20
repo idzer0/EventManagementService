@@ -97,7 +97,7 @@ public class EventRepository : IEventRepository
     /// <inheritdoc/>
     public async Task<EventEntity?> UpdateAsync(EventEntity updateEventRequest)
     {
-        var existing = _context.Events.FirstOrDefault(e => e.Id == updateEventRequest.Id) 
+        var existing = await _context.Events.SingleOrDefaultAsync(e => e.Id == updateEventRequest.Id) 
             ?? throw new KeyNotFoundException($"Событие с Id {updateEventRequest.Id} не найдено.");
 
         _context.Events.Update(updateEventRequest);        
@@ -105,7 +105,7 @@ public class EventRepository : IEventRepository
 
         _logger.LogInformation("Событие обновлено с Id: {Id}", updateEventRequest.Id);
 
-        return updateEventRequest;
+        return await _context.Events.SingleAsync(e => e.Id == updateEventRequest.Id);
     }
 
     /// <inheritdoc/>
@@ -126,6 +126,9 @@ public class EventRepository : IEventRepository
     /// </summary>
     private IQueryable<EventEntity> GetQueryByFilterEvents(EventsFilter filter)
     {
+        if (filter.Page == 0 || filter.PageSize == 0)
+            throw new ArgumentException("Номер страницы и размер страницы не могут быть равны нулю.");
+
         // Базовый запрос
         var query = _context.Events.AsQueryable();
         
