@@ -17,7 +17,7 @@ public interface IEventRepository
     /// <summary>
     /// Возвращает количество событий
     /// </summary>
-    Task<int> EventsCount();
+    Task<int> EventsCount(EventsFilter filter);
 
     /// <summary>
     /// Проверяет наличие события по Id

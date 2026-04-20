@@ -22,6 +22,7 @@ public class EventController : ControllerBase
     public async Task<ActionResult<PaginatedResponse<EventResponse>>> GetAll([FromQuery] EventsFilter filter)
     {
         var result = await _eventService.GetPaginatedEventsAsync(filter);
+        
         return Ok(result);
     }
 
@@ -34,8 +35,7 @@ public class EventController : ControllerBase
     public async Task<ActionResult<EventResponse>> GetById(Guid id)
     {
         var ev = await _eventService.GetByIdAsync(id);
-        if (ev is null)
-            return NotFound(new { message = $"Событие с Id {id} не найдено" });
+
         return Ok(ev);
     }
 
@@ -47,15 +47,9 @@ public class EventController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EventResponse>> Create([FromBody] EventRequest createEvent)
     {
-        try
-        {
-            var created = await _eventService.CreateAsync(createEvent);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var created = await _eventService.CreateAsync(createEvent);
+
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>
@@ -67,17 +61,9 @@ public class EventController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EventResponse>> Update(Guid id, [FromBody] EventRequest updateEvent)
     {
-        try
-        {
-            var updated = await _eventService.UpdateAsync(id, updateEvent);
-            if (updated is null)
-                return NotFound(new { message = $"Событие с Id {id} не найдено" });
-            return Ok(updated);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var updated = await _eventService.UpdateAsync(id, updateEvent);
+
+        return Ok(updated);
     }
 
     /// <summary>

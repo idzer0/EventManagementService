@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using EventManagementService.Services;
 using Castle.Core.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using EventManagementServiceTests.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace EventManagementServiceTests;
 
@@ -14,9 +16,11 @@ public class EventServiceTestsOperationFails
 {
     private readonly Mock<IEventRepository> _mockRepository;
     private readonly IEventService _service;
+    private readonly EventsDbContextMocker _dbContextMocker;
 
     public EventServiceTestsOperationFails ()
     {
+        _dbContextMocker = new EventsDbContextMocker();
         _mockRepository = new Mock<IEventRepository>();
         _service = new EventService(_mockRepository.Object, NullLogger<EventService>.Instance);
     }
@@ -99,6 +103,30 @@ public class EventServiceTestsOperationFails
         _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<EventEntity>()), Times.Never);
     }
     
+    [Fact]
+    public async Task UpdateAsync_MissingEvent_ThrowsKeyNotFoundException()
+    {
+        var nonExistentEvent = new EventRequest() 
+            { Title = "Несуществующее событие", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) };
+
+        var nonExistentEventId = Guid.NewGuid();
+
+        var events = new List<EventEntity>
+        {
+            new() { Id = Guid.NewGuid(), Title = "Музыкальный фестиваль", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) },
+            new() { Id = Guid.NewGuid(), Title = "Техническая конференция", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) },
+            new() { Id = Guid.NewGuid(), Title = "Встреча 1 to 1", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) }
+        };
+
+        var service = _dbContextMocker.ArrangeEventServiceTestCase(
+            nameof(this.UpdateAsync_MissingEvent_ThrowsKeyNotFoundException), events);
+
+        Func<Task> act = async () => await service.UpdateAsync(nonExistentEventId, nonExistentEvent);
+
+        await act.Should().ThrowAsync<KeyNotFoundException>()
+            .WithMessage($"Событие с Id {nonExistentEventId} не найдено.");
+    }
+
     [Fact]
     public async Task DeleteAsync_NonExistingId_ReturnsFalse()
     {

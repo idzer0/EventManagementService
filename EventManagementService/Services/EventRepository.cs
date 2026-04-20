@@ -51,32 +51,18 @@ public class EventRepository : IEventRepository
     }
 
     /// <inheritdoc/>
-    public async Task<int> EventsCount()
+    public async Task<int> EventsCount(EventsFilter filter)
     {
-        return await _context.Events.CountAsync();
+        var query = GetQueryByFilterEvents(filter);
+
+        return await query.CountAsync();
     }
 
     /// <inheritdoc/>
     public async Task<List<EventEntity>> GetPaginatedEventsAsync(EventsFilter filter)
     {
         // Базовый запрос
-        var query = _context.Events.AsQueryable();
-        
-        // Фильтрация через LINQ
-        if (!string.IsNullOrWhiteSpace(filter.Title))
-        {
-            query = query.Where(e => e.Title.Contains(filter.Title, StringComparison.OrdinalIgnoreCase));
-        }
-        
-        if (filter.From.HasValue)
-        {
-            query = query.Where(e => e.StartAt >= filter.From.Value);
-        }
-        
-        if (filter.To.HasValue)
-        {
-            query = query.Where(e => e.EndAt <= filter.To.Value);
-        }
+        var query = GetQueryByFilterEvents(filter);
         
         // Пагинация через LINQ (Skip/Take)
         var items = await query
@@ -111,9 +97,8 @@ public class EventRepository : IEventRepository
     /// <inheritdoc/>
     public async Task<EventEntity?> UpdateAsync(EventEntity updateEventRequest)
     {
-        var existing = _context.Events.FirstOrDefault(e => e.Id == updateEventRequest.Id);
-        if (existing is null)
-            return null;
+        var existing = _context.Events.FirstOrDefault(e => e.Id == updateEventRequest.Id) 
+            ?? throw new KeyNotFoundException($"Событие с Id {updateEventRequest.Id} не найдено.");
 
         _context.Events.Update(updateEventRequest);        
         await _context.SaveChangesAsync();
@@ -126,14 +111,40 @@ public class EventRepository : IEventRepository
     /// <inheritdoc/>
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var ev = _context.Events.FirstOrDefault(e => e.Id == id);
-        if (ev is null)
-            return false;
+        var ev = _context.Events.FirstOrDefault(e => e.Id == id)
+            ?? throw new KeyNotFoundException($"Событие с Id {id} не найдено");
 
         _context.Events.Remove(ev);
         await _context.SaveChangesAsync();
 
         _logger.LogInformation("Событие с: {Id} удалено", id);
         return true;
+    }
+
+    /// <summary>
+    /// Возвращает IQueryable для Events по фильтру
+    /// </summary>
+    private IQueryable<EventEntity> GetQueryByFilterEvents(EventsFilter filter)
+    {
+        // Базовый запрос
+        var query = _context.Events.AsQueryable();
+        
+        // Фильтрация через LINQ
+        if (!string.IsNullOrWhiteSpace(filter.Title))
+        {
+            query = query.Where(e => e.Title.Contains(filter.Title, StringComparison.OrdinalIgnoreCase));
+        }
+        
+        if (filter.From.HasValue)
+        {
+            query = query.Where(e => e.StartAt >= filter.From.Value);
+        }
+        
+        if (filter.To.HasValue)
+        {
+            query = query.Where(e => e.EndAt <= filter.To.Value);
+        }
+
+        return query;
     }
 }

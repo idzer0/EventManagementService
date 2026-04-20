@@ -58,7 +58,7 @@ public class ExceptionHandlerMiddleware
         var error = new ErrorDetailsResponse
         {
             Status = statusCode,
-            ErrorType = ex.GetType().Name, //ex.InnerException?.GetType().Name ?? typeof(InternalServerError).Name,
+            ErrorType = ex.GetType().Name,
             Detail = ex.Message
         };
 
@@ -72,6 +72,7 @@ public class ExceptionHandlerMiddleware
         => ex switch
         {
             ValidationException ve => StatusCodes.Status400BadRequest,
+            ArgumentException ae => StatusCodes.Status400BadRequest,
             KeyNotFoundException nfe => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
         };

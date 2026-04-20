@@ -34,7 +34,7 @@ public class EventService : IEventService
         {
             Page = filter.Page,
             PageSize = filter.PageSize,
-            TotalCount = await _repository.EventsCount(),
+            TotalCount = await _repository.EventsCount(filter),
             Items = [.. events.Select(e => MapToResponse(e))]
         };
     }
