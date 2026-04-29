@@ -20,7 +20,7 @@ public class EventServiceTestsCRUD
         _mockRepository = new Mock<IEventRepository>();
         _service = new EventService(_mockRepository.Object, NullLogger<EventService>.Instance);
     }
-    
+
     [Fact]
     public async Task CreateAsync_ValidEvent_ReturnsEventWithId()
     {
@@ -31,7 +31,7 @@ public class EventServiceTestsCRUD
             StartAt = DateTime.UtcNow.AddDays(1),
             EndAt = DateTime.UtcNow.AddDays(2),
         };
-        
+
         var createdEvent = new EventEntity
         {
             Id = Guid.NewGuid(),
@@ -40,18 +40,18 @@ public class EventServiceTestsCRUD
             StartAt = newEvent.StartAt,
             EndAt = newEvent.EndAt,
         };
-        
-        _mockRepository.Setup(repo => repo.CreateAsync(It.IsAny<EventEntity>()))
+
+        _mockRepository.Setup(repo => repo.CreateAsync(It.IsAny<EventEntity>(), CancellationToken.None))
             .ReturnsAsync(createdEvent);
-        
-        var result = await _service.CreateAsync(newEvent);
-        
+
+        var result = await _service.CreateAsync(newEvent, CancellationToken.None);
+
         result.Should().NotBeNull();
         result.Id.Should().NotBeEmpty();
         result.Title.Should().Be(newEvent.Title);
-        _mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<EventEntity>()), Times.Once);
+        _mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<EventEntity>(), CancellationToken.None), Times.Once);
     }
-    
+
     [Fact]
     public async Task GetByIdAsync_ExistingId_ReturnsEvent()
     {
@@ -63,18 +63,18 @@ public class EventServiceTestsCRUD
             StartAt = DateTime.UtcNow,
             EndAt = DateTime.UtcNow.AddDays(1)
         };
-        
-        _mockRepository.Setup(repo => repo.GetByIdAsync(eventId))
+
+        _mockRepository.Setup(repo => repo.GetByIdAsync(eventId, CancellationToken.None))
             .ReturnsAsync(expectedEvent);
-        
-        var result = await _service.GetByIdAsync(eventId);
-        
+
+        var result = await _service.GetByIdAsync(eventId, CancellationToken.None);
+
         result.Should().NotBeNull();
         result.Id.Should().Be(eventId);
         result.Title.Should().Be("Существующее событие");
-        _mockRepository.Verify(repo => repo.GetByIdAsync(eventId), Times.Once);
+        _mockRepository.Verify(repo => repo.GetByIdAsync(eventId, CancellationToken.None), Times.Once);
     }
-    
+
     [Fact]
     public async Task UpdateAsync_ValidEvent_ReturnsUpdatedEvent()
     {
@@ -86,7 +86,7 @@ public class EventServiceTestsCRUD
             StartAt = DateTime.UtcNow,
             EndAt = DateTime.UtcNow.AddDays(1)
         };
-        
+
         var updatedEvent = new EventRequest
         {
             Title = "Новое наименование",
@@ -94,29 +94,29 @@ public class EventServiceTestsCRUD
             StartAt = DateTime.UtcNow,
             EndAt = DateTime.UtcNow.AddDays(2),
         };
-        
-        _mockRepository.Setup(repo => repo.UpdateAsync(It.IsAny<EventEntity>()))
+
+        _mockRepository.Setup(repo => repo.UpdateAsync(It.IsAny<EventEntity>(), CancellationToken.None))
             .ReturnsAsync(existingEvent);
-        
-        var result = await _service.UpdateAsync(eventId, updatedEvent);
-        
+
+        var result = await _service.UpdateAsync(eventId, updatedEvent, CancellationToken.None);
+
         result.Should().NotBeNull();
         result.Title.Should().Be("Новое наименование");
         result.Description.Should().Be("Обновленное описание");
-        _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<EventEntity>()), Times.Once);
+        _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<EventEntity>(), CancellationToken.None), Times.Once);
     }
-    
+
     [Fact]
     public async Task DeleteAsync_ExistingId_ReturnsTrue()
     {
         var eventId = Guid.NewGuid();
-        
-        _mockRepository.Setup(repo => repo.DeleteAsync(eventId))
+
+        _mockRepository.Setup(repo => repo.DeleteAsync(eventId, CancellationToken.None))
             .ReturnsAsync(true);
-        
-        var result = await _service.DeleteAsync(eventId);
-        
+
+        var result = await _service.DeleteAsync(eventId, CancellationToken.None);
+
         result.Should().BeTrue();
-        _mockRepository.Verify(repo => repo.DeleteAsync(eventId), Times.Once);
+        _mockRepository.Verify(repo => repo.DeleteAsync(eventId, CancellationToken.None), Times.Once);
     }
 }

@@ -3,6 +3,7 @@ using EventManagementService.DiContext.Application;
 using EventManagementService.DiContext.Infrastructure;
 using EventManagementService.Infrastructure;
 using EventManagementService.Middleware;
+using EventManagementService.ServicesBackground;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,9 @@ if (builder.Environment.IsDevelopment())
         options.ValidateScopes = true;
         options.ValidateOnBuild = true;
     });
-} 
+}
+
+builder.Services.AddHostedService<BookingBackgroundProcessing>();
 
 var app = builder.Build();
 
@@ -31,7 +34,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapControllers();      
+app.MapControllers();
 
 app.Run();
 

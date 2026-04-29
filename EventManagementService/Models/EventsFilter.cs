@@ -6,7 +6,7 @@ namespace EventManagementService.Models;
 public class EventsFilter
 {
     /// <summary>
-    /// Подстрока для фильтрации по наименованию 
+    /// Подстрока для фильтрации по наименованию
     /// </summary>
     public string? Title { get; set; }
 
@@ -24,7 +24,7 @@ public class EventsFilter
     /// Номер запрашиваемой страницы
     /// </summary>
     public int Page { get; set; } = 1;
-    
+
     /// <summary>
     /// Размер запрашиваемой страницы
     /// </summary>

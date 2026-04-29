@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace EventManagementService.Middleware;
 
 /// <summary>
-/// Слой обработки ошибок, возникающих в процессе обработки запросов 
+/// Слой обработки ошибок, возникающих в процессе обработки запросов
 /// </summary>
 public class ExceptionHandlerMiddleware
 {
@@ -44,14 +44,14 @@ public class ExceptionHandlerMiddleware
             httpContext.Request.Method,
             httpContext.Request.Path,
             httpContext.Request.Headers["x-request-id"]);
-            
+
         if (httpContext.Response.HasStarted)
         {
             return;
         }
 
         var statusCode = MapStatusCode(ex);
-        
+
         httpContext.Response.StatusCode = statusCode;
         httpContext.Response.ContentType = "application/json";
 
