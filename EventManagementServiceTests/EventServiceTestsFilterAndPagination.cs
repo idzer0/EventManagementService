@@ -97,7 +97,7 @@ public class EventServiceTestsFilterAndPagination
         result.TotalCount.Should().Be(25);
         result.TotalPages.Should().Be(3);
         result.Items.Should().HaveCount(10);
-        result.Items.First().Title.Should().Be("Событие 11");
+        result.Items[0].Title.Should().Be("Событие 11");
     }
 
     [Fact]
@@ -123,6 +123,6 @@ public class EventServiceTestsFilterAndPagination
         var result = await repo.GetPaginatedEventsAsync(filter, CancellationToken.None);
 
         result.Should().ContainSingle();
-        result.First().Title.Should().Be("Встреча 1");
+        result[0].Title.Should().Be("Встреча 1");
     }
 }

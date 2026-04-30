@@ -21,7 +21,7 @@ public class BookingRepository : IBookingRepository
     }
 
     /// <inheritdoc/>
-    public async Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTime createdAt, CancellationToken ct)
+    public async Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTimeOffset createdAt, CancellationToken ct)
     {
         BookingEntity booking = new()
             {

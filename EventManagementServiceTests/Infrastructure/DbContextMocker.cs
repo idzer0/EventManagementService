@@ -1,10 +1,8 @@
-using System.Reflection.Metadata;
 using EventManagementService.Contracts;
 using EventManagementService.Infrastructure;
 using EventManagementService.Models;
 using EventManagementService.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EventManagementServiceTests.Infrastructure;
@@ -26,6 +24,7 @@ public class DbContextMocker()
     public IEventRepository ArrangeEventsRepositoryTestCase(AppDbContext dbContext, List<EventEntity> items)
     {
         dbContext.Events.AddRange(items);
+        dbContext.SaveChanges();
 
         return new EventRepository(dbContext, NullLogger<EventRepository>.Instance);
     }
@@ -33,6 +32,7 @@ public class DbContextMocker()
     public IBookingRepository ArrangeBookingRepositoryTestCase(AppDbContext dbContext, List<BookingEntity> items)
     {
         dbContext.Bookings.AddRange(items);
+        dbContext.SaveChanges();
 
         return new BookingRepository(dbContext, NullLogger<BookingRepository>.Instance);
     }

@@ -1,8 +1,9 @@
-using EventManagementService.Models;
-using EventManagementService.Contracts;
-using EventManagementService.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
+using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
+using EventManagementService.Infrastructure;
+using EventManagementService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementService.Services;
 
@@ -18,19 +19,6 @@ public class EventRepository : IEventRepository
     {
         _context = context;
         _logger = logger;
-
-        //добавляем тестовую запись
-        if (_context.Events.Count() == 0)
-        {
-            _context.Events.Add(new EventEntity {
-                Id = Guid.NewGuid(),
-                Title = "Тестовое событие",
-                Description = "Это событие создано с целью проверки работоспособности сервиса",
-                StartAt = DateTime.UtcNow.AddDays(1),
-                EndAt = DateTime.UtcNow.AddDays(2)
-            });
-            _context.SaveChanges();
-        }
     }
 
     /// <inheritdoc/>
@@ -101,7 +89,7 @@ public class EventRepository : IEventRepository
     public async Task<EventEntity?> UpdateAsync(EventEntity updateEventRequest, CancellationToken ct)
     {
         var existing = await _context.Events.SingleOrDefaultAsync(e => e.Id == updateEventRequest.Id, ct)
-            ?? throw new KeyNotFoundException($"Событие с Id {updateEventRequest.Id} не найдено.");
+            ?? throw new ObjectNotFoundDomainException($"Событие с Id {updateEventRequest.Id} не найдено.");
 
         _context.Events.Update(updateEventRequest);
         await _context.SaveChangesAsync(ct);
@@ -115,7 +103,7 @@ public class EventRepository : IEventRepository
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
         var ev = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, ct)
-            ?? throw new KeyNotFoundException($"Событие с Id {id} не найдено");
+            ?? throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено");
 
         _context.Events.Remove(ev);
         await _context.SaveChangesAsync(ct);
@@ -130,7 +118,7 @@ public class EventRepository : IEventRepository
     private IQueryable<EventEntity> GetQueryByFilterEvents(EventsFilter filter)
     {
         if (filter.Page == 0 || filter.PageSize == 0)
-            throw new ArgumentException("Номер страницы и размер страницы не могут быть равны нулю.");
+            throw new ValidationDomainException("Номер страницы и размер страницы не могут быть равны нулю.");
 
         // Базовый запрос
         var query = _context.Events.AsQueryable();

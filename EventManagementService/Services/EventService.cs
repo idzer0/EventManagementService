@@ -1,5 +1,6 @@
 
 using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
 using EventManagementService.Infrastructure;
 using EventManagementService.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -48,17 +49,17 @@ public class EventService : IEventService
     {
         var ev = await _repository.GetByIdAsync(id, ct);
 
-        return ev is not null ? MapToResponse(ev) : throw new KeyNotFoundException($"Событие с ID {id} не найдено.");;
+        return ev is not null ? MapToResponse(ev) : throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.");;
     }
 
     /// <inheritdoc/>
     public async Task<EventResponse> CreateAsync(EventRequest createEventRequest, CancellationToken ct)
     {
         if (createEventRequest.EndAt < createEventRequest.StartAt)
-            throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала.");
+            throw new ValidationDomainException("Дата окончания события должна быть больше или равна дате начала.");
 
-        if (createEventRequest.Title is null || createEventRequest.Title == string.Empty)
-            throw new ArgumentException("Название события не может быть пустым.");
+        if (string.IsNullOrEmpty(createEventRequest.Title))
+            throw new ValidationDomainException("Название события не может быть пустым.");
 
 
         var newEvent = new EventEntity {
@@ -78,7 +79,7 @@ public class EventService : IEventService
     public async Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEvent, CancellationToken ct)
     {
         if (updateEvent.EndAt < updateEvent.StartAt)
-            throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала.");
+            throw new ValidationDomainException("Дата окончания события должна быть больше или равна дате начала.");
 
         var entity = MapToEntity(id, updateEvent);
 
@@ -88,15 +89,15 @@ public class EventService : IEventService
     }
 
     /// <inheritdoc/>
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
+    public Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
-        return await _repository.DeleteAsync(id, ct);
+        return _repository.DeleteAsync(id, ct);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> IsExistAsync(Guid id, CancellationToken ct)
+    public Task<bool> IsExistAsync(Guid id, CancellationToken ct)
     {
-        return await _repository.IsExistsAsync(id, ct);
+        return _repository.IsExistsAsync(id, ct);
     }
 
     private static EventResponse MapToResponse(EventEntity ev) =>

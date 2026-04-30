@@ -1,4 +1,5 @@
 using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
 using EventManagementService.Models;
 using EventManagementService.Services;
 using EventManagementService.ServicesBackground;
@@ -21,22 +22,22 @@ public class BookingServiceFailTests
     }
 
     [Fact]
-    public async Task CreateAsync_MissingEvent_ThrowsKeyNotFoundException()
+    public async Task CreateAsync_MissingEvent_ThrowsObjectNotFoundDomainException()
     {
         Guid eventId = Guid.NewGuid();
 
-        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_MissingEvent_ThrowsKeyNotFoundException));
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_MissingEvent_ThrowsObjectNotFoundDomainException));
         var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, null);
         var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
 
         Func<Task> act = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>()
+        await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
             .WithMessage($"События с Id {eventId} не найдено.");
     }
 
     [Fact]
-    public async Task CreateAsync_ForDeletedEvent_ThrowsKeyNotFoundException()
+    public async Task CreateAsync_ForDeletedEvent_ThrowsObjectNotFoundDomainException()
     {
         Guid eventId = Guid.NewGuid();
 
@@ -49,29 +50,29 @@ public class BookingServiceFailTests
             EndAt = DateTime.Now.Date.AddDays(2),
         };
 
-        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_MissingEvent_ThrowsKeyNotFoundException));
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_ForDeletedEvent_ThrowsObjectNotFoundDomainException));
         var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, [ev]);
         var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
 
         await eventService.DeleteAsync(eventId, CancellationToken.None);
         Func<Task> act = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>()
+        await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
             .WithMessage($"События с Id {eventId} не найдено.");
     }
 
     [Fact]
-    public async Task GetByIdAsync_NonExistingId_ThrowsKeyNotFoundException()
+    public async Task GetByIdAsync_NonExistingId_ThrowsObjectNotFoundDomainException()
     {
         Guid Id = Guid.NewGuid();
 
-        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.GetByIdAsync_NonExistingId_ThrowsKeyNotFoundException));
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.GetByIdAsync_NonExistingId_ThrowsObjectNotFoundDomainException));
         var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, null);
         var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
 
         Func<Task> act = async () => await bookingService.GetBookingByIdAsync(Id, CancellationToken.None);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>()
+        await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
             .WithMessage($"Бронь с Id {Id} не найдена.");
     }
 }

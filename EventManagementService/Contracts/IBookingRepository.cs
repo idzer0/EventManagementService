@@ -7,7 +7,7 @@ public interface IBookingRepository
     /// <summary>
     /// Создание брони для указанного события
     /// </summary>
-    Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTime createdAt, CancellationToken ct);
+    Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTimeOffset createdAt, CancellationToken ct);
 
     /// <summary>
     /// Получение брони по идентификатору

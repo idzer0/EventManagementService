@@ -28,10 +28,10 @@ public class BookingEntity
     /// Дата и время создания брони.
     /// </summary>
     [Required]
-    public DateTime CreatedAt {get; set;}
+    public DateTimeOffset CreatedAt {get; set;}
 
     /// <summary>
     /// Дата и время обработки брони.
     /// </summary>
-    public DateTime? ProcessedAt {get; set;}
+    public DateTimeOffset? ProcessedAt {get; set;}
 }

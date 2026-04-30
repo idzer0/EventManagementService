@@ -1,4 +1,5 @@
 using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
 using EventManagementService.Models;
 
 namespace EventManagementService.Services;
@@ -26,16 +27,16 @@ public class BookingService : IBookingService
     public async Task<BookingInfo> CreateBookingAsync(Guid eventId, CancellationToken ct)
     {
         if(!await _eventService.IsExistAsync(eventId, ct))
-            throw new KeyNotFoundException($"События с Id {eventId} не найдено.");
+            throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        return MapToResponse(await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTime.UtcNow, ct));
+        return MapToResponse(await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
     }
 
     /// <inheritdoc/>
     public async Task<BookingInfo> GetBookingByIdAsync(Guid bookingId, CancellationToken ct)
     {
         var entity = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
-            ?? throw new KeyNotFoundException($"Бронь с Id {bookingId} не найдена.");
+            ?? throw new ObjectNotFoundDomainException($"Бронь с Id {bookingId} не найдена.");
 
         return MapToResponse(entity);
     }
@@ -50,12 +51,12 @@ public class BookingService : IBookingService
     public async Task ProcessPendingBookingAsync(Guid bookingId, CancellationToken ct)
     {
         BookingEntity? booking = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
-            ?? throw new KeyNotFoundException("Бронирование Id {bookingId} не найдено.");
+            ?? throw new ObjectNotFoundDomainException($"Бронирование Id {bookingId} не найдено.");
 
         if (booking.Status == BookingStatusEnum.Pending)
         {
             booking.Status = BookingStatusEnum.Confirmed;
-            booking.ProcessedAt = DateTime.UtcNow;
+            booking.ProcessedAt = DateTimeOffset.UtcNow;
             await _repoBooking.UpdateBookingAsync(booking, ct);
         }
     }

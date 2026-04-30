@@ -1,4 +1,5 @@
 ﻿using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
 using EventManagementService.Models;
 using EventManagementService.Services;
 using EventManagementServiceTests.Infrastructure;
@@ -81,7 +82,7 @@ public class EventServiceTestsEdgeCases
 
         Func<Task> act = async () => await service.GetPaginatedEventsAsync(filter, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
+        await act.Should().ThrowAsync<ValidationDomainException>()
             .WithMessage("Номер страницы и размер страницы не могут быть равны нулю.");
     }
 
@@ -107,7 +108,7 @@ public class EventServiceTestsEdgeCases
 
         Func<Task> act = async () => await service.GetPaginatedEventsAsync(filter, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
+        await act.Should().ThrowAsync<ValidationDomainException>()
             .WithMessage("Номер страницы и размер страницы не могут быть равны нулю.");
     }
 }
