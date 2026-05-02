@@ -1,6 +1,7 @@
 using EventManagementService.Contracts;
 using EventManagementService.DomainExceptions;
 using EventManagementService.Models;
+using EventManagementService.Services.Mappers;
 
 namespace EventManagementService.Services;
 
@@ -29,7 +30,7 @@ public class BookingService : IBookingService
         if(!await _eventService.IsExistAsync(eventId, ct))
             throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        return MapToResponse(await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
+        return BookingMapper.MapToResponse(await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
     }
 
     /// <inheritdoc/>
@@ -38,7 +39,7 @@ public class BookingService : IBookingService
         var entity = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
             ?? throw new ObjectNotFoundDomainException($"Бронь с Id {bookingId} не найдена.");
 
-        return MapToResponse(entity);
+        return BookingMapper.MapToResponse(entity);
     }
 
     /// <inheritdoc/>
@@ -59,17 +60,5 @@ public class BookingService : IBookingService
             booking.ProcessedAt = DateTimeOffset.UtcNow;
             await _repoBooking.UpdateBookingAsync(booking, ct);
         }
-    }
-
-    private static BookingInfo MapToResponse(BookingEntity entity)
-    {
-        return new BookingInfo()
-        {
-            Id = entity.Id,
-            EventId = entity.EventId,
-            Status = entity.Status,
-            CreatedAt = entity.CreatedAt,
-            ProcessedAt = entity.ProcessedAt,
-        };
     }
 }

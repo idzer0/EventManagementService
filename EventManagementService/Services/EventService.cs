@@ -3,6 +3,7 @@ using EventManagementService.Contracts;
 using EventManagementService.DomainExceptions;
 using EventManagementService.Infrastructure;
 using EventManagementService.Models;
+using EventManagementService.Services.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +28,7 @@ public class EventService : IEventService
     public async Task<IEnumerable<EventResponse>> GetAllAsync(CancellationToken ct)
     {
         var events = await _repository.GetAllAsync(ct);
-        return events.Select(e => MapToResponse(e));
+        return events.Select(e => EventMapper.MapToResponse(e));
     }
 
     /// <inheritdoc/>
@@ -40,7 +41,7 @@ public class EventService : IEventService
             Page = filter.Page,
             PageSize = filter.PageSize,
             TotalCount = await _repository.EventsCountAsync(filter, ct),
-            Items = [.. events.Select(e => MapToResponse(e))]
+            Items = [.. events.Select(e => EventMapper.MapToResponse(e))]
         };
     }
 
@@ -49,7 +50,7 @@ public class EventService : IEventService
     {
         var ev = await _repository.GetByIdAsync(id, ct);
 
-        return ev is not null ? MapToResponse(ev) : throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.");;
+        return ev is not null ? EventMapper.MapToResponse(ev) : throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.");;
     }
 
     /// <inheritdoc/>
@@ -72,7 +73,7 @@ public class EventService : IEventService
 
         await _repository.CreateAsync(newEvent, ct);
 
-        return MapToResponse(newEvent);
+        return EventMapper.MapToResponse(newEvent);
     }
 
     /// <inheritdoc/>
@@ -81,11 +82,11 @@ public class EventService : IEventService
         if (updateEvent.EndAt < updateEvent.StartAt)
             throw new ValidationDomainException("Дата окончания события должна быть больше или равна дате начала.");
 
-        var entity = MapToEntity(id, updateEvent);
+        var entity = EventMapper.MapToEntity(id, updateEvent);
 
         await _repository.UpdateAsync(entity, ct);
 
-        return MapToResponse(entity);
+        return EventMapper.MapToResponse(entity);
     }
 
     /// <inheritdoc/>
@@ -99,24 +100,4 @@ public class EventService : IEventService
     {
         return _repository.IsExistsAsync(id, ct);
     }
-
-    private static EventResponse MapToResponse(EventEntity ev) =>
-        new()
-        {
-            Id = ev.Id,
-            Title = ev.Title,
-            Description = ev.Description,
-            StartAt = ev.StartAt,
-            EndAt = ev.EndAt
-        };
-
-    private static EventEntity MapToEntity(Guid Id, EventRequest ev) =>
-        new()
-        {
-            Id = Id,
-            Title = ev.Title,
-            Description = ev.Description,
-            StartAt = ev.StartAt,
-            EndAt = ev.EndAt
-        };
 }
