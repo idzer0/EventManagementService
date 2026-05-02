@@ -8,4 +8,6 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<EventEntity> Events { get; set; }
+
+    public DbSet<BookingEntity> Bookings { get; set; }
 }

@@ -8,6 +8,7 @@ using Castle.Core.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using EventManagementServiceTests.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using EventManagementService.DomainExceptions;
 
 namespace EventManagementServiceTests;
 
@@ -16,17 +17,17 @@ public class EventServiceTestsOperationFails
 {
     private readonly Mock<IEventRepository> _mockRepository;
     private readonly IEventService _service;
-    private readonly EventsDbContextMocker _dbContextMocker;
+    private readonly DbContextMocker _dbContextMocker;
 
     public EventServiceTestsOperationFails ()
     {
-        _dbContextMocker = new EventsDbContextMocker();
+        _dbContextMocker = new DbContextMocker();
         _mockRepository = new Mock<IEventRepository>();
         _service = new EventService(_mockRepository.Object, NullLogger<EventService>.Instance);
     }
-    
+
     [Fact]
-    public async Task CreateAsync_EmptyTitle_ThrowsArgumentException()
+    public async Task CreateAsync_EmptyTitle_ThrowsValidationDomainException()
     {
         var invalidEvent = new EventRequest
         {
@@ -34,16 +35,16 @@ public class EventServiceTestsOperationFails
             StartAt = DateTime.UtcNow.AddDays(1),
             EndAt = DateTime.UtcNow.AddDays(2)
         };
-        
-        Func<Task> act = async () => await _service.CreateAsync(invalidEvent);
-        
-        await act.Should().ThrowAsync<ArgumentException>()
+
+        Func<Task> act = async () => await _service.CreateAsync(invalidEvent, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ValidationDomainException>()
             .WithMessage("Название события не может быть пустым.");
-        _mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<EventEntity>()), Times.Never);
+        _mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<EventEntity>(), CancellationToken.None), Times.Never);
     }
-    
+
     [Fact]
-    public async Task CreateAsync_InvalidDates_ThrowsArgumentException()
+    public async Task CreateAsync_InvalidDates_ThrowsValidationDomainException()
     {
         var invalidEvent = new EventRequest
         {
@@ -52,30 +53,30 @@ public class EventServiceTestsOperationFails
             EndAt = DateTime.UtcNow.AddDays(1) // Дата конца меньше даты начала события
         };
 
-        Func<Task> act = async () => await _service.CreateAsync(invalidEvent);
+        Func<Task> act = async () => await _service.CreateAsync(invalidEvent, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
+        await act.Should().ThrowAsync<ValidationDomainException>()
             .WithMessage("Дата окончания события должна быть больше или равна дате начала.");
-        _mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<EventEntity>()), Times.Never);
+        _mockRepository.Verify(repo => repo.CreateAsync(It.IsAny<EventEntity>(), CancellationToken.None), Times.Never);
     }
-    
+
     [Fact]
-    public async Task GetByIdAsync_NonExistingId_ThrowsKeyNotFoundException()
+    public async Task GetByIdAsync_NonExistingId_ThrowsObjectNotFoundDomainException()
     {
         var nonExistentId = Guid.NewGuid();
-        
-        _mockRepository.Setup(repo => repo.GetByIdAsync(nonExistentId))
+
+        _mockRepository.Setup(repo => repo.GetByIdAsync(nonExistentId, CancellationToken.None))
             .ReturnsAsync((EventEntity?)null);
 
-        Func<Task> act = async () => await _service.GetByIdAsync(nonExistentId);
+        Func<Task> act = async () => await _service.GetByIdAsync(nonExistentId, CancellationToken.None);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>()
-            .WithMessage($"Событие с ID {nonExistentId} не найдено.");
-        _mockRepository.Verify(repo => repo.GetByIdAsync(nonExistentId), Times.Once);
+        await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
+            .WithMessage($"Событие с Id {nonExistentId} не найдено.");
+        _mockRepository.Verify(repo => repo.GetByIdAsync(nonExistentId, CancellationToken.None), Times.Once);
     }
-      
+
     [Fact]
-    public async Task UpdateAsync_InvalidDates_ThrowsArgumentException()
+    public async Task UpdateAsync_InvalidDates_ThrowsValidationDomainException()
     {
         var eventId = Guid.NewGuid();
         var existingEvent = new EventEntity
@@ -85,28 +86,28 @@ public class EventServiceTestsOperationFails
             StartAt = DateTime.UtcNow,
             EndAt = DateTime.UtcNow.AddDays(1)
         };
-        
+
         var invalidUpdate = new EventRequest
         {
             Title = "Invalid",
             StartAt = DateTime.UtcNow.AddDays(2),
             EndAt = DateTime.UtcNow.AddDays(1)
         };
-        
-        _mockRepository.Setup(repo => repo.GetByIdAsync(eventId))
+
+        _mockRepository.Setup(repo => repo.GetByIdAsync(eventId, CancellationToken.None))
             .ReturnsAsync(existingEvent);
 
-        Func<Task> act = async () => await _service.UpdateAsync(eventId, invalidUpdate);
+        Func<Task> act = async () => await _service.UpdateAsync(eventId, invalidUpdate, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ArgumentException>()
+        await act.Should().ThrowAsync<ValidationDomainException>()
             .WithMessage("Дата окончания события должна быть больше или равна дате начала.");
-        _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<EventEntity>()), Times.Never);
+        _mockRepository.Verify(repo => repo.UpdateAsync(It.IsAny<EventEntity>(), CancellationToken.None), Times.Never);
     }
-    
+
     [Fact]
-    public async Task UpdateAsync_MissingEvent_ThrowsKeyNotFoundException()
+    public async Task UpdateAsync_MissingEvent_ThrowsObjectNotFoundDomainException()
     {
-        var nonExistentEvent = new EventRequest() 
+        var nonExistentEvent = new EventRequest()
             { Title = "Несуществующее событие", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) };
 
         var nonExistentEventId = Guid.NewGuid();
@@ -119,11 +120,11 @@ public class EventServiceTestsOperationFails
         };
 
         var service = _dbContextMocker.ArrangeEventServiceTestCase(
-            nameof(this.UpdateAsync_MissingEvent_ThrowsKeyNotFoundException), events);
+            _dbContextMocker.GetAppDbContext(nameof(this.UpdateAsync_MissingEvent_ThrowsObjectNotFoundDomainException)), events);
 
-        Func<Task> act = async () => await service.UpdateAsync(nonExistentEventId, nonExistentEvent);
+        Func<Task> act = async () => await service.UpdateAsync(nonExistentEventId, nonExistentEvent, CancellationToken.None);
 
-        await act.Should().ThrowAsync<KeyNotFoundException>()
+        await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
             .WithMessage($"Событие с Id {nonExistentEventId} не найдено.");
     }
 
@@ -131,13 +132,13 @@ public class EventServiceTestsOperationFails
     public async Task DeleteAsync_NonExistingId_ReturnsFalse()
     {
         var nonExistentId = Guid.NewGuid();
-        
-        _mockRepository.Setup(repo => repo.DeleteAsync(nonExistentId))
+
+        _mockRepository.Setup(repo => repo.DeleteAsync(nonExistentId, CancellationToken.None))
             .ReturnsAsync(false);
-        
-        var result = await _service.DeleteAsync(nonExistentId);
-        
+
+        var result = await _service.DeleteAsync(nonExistentId, CancellationToken.None);
+
         result.Should().BeFalse();
-        _mockRepository.Verify(repo => repo.DeleteAsync(nonExistentId), Times.Once);
+        _mockRepository.Verify(repo => repo.DeleteAsync(nonExistentId, CancellationToken.None), Times.Once);
     }
 }

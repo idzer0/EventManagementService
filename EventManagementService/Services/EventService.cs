@@ -1,11 +1,17 @@
 
 using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
 using EventManagementService.Infrastructure;
 using EventManagementService.Models;
+using EventManagementService.Services.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventManagementService.Services;
+
+/// <summary>
+/// Сервис обработки событий.
+/// </summary>
 public class EventService : IEventService
 {
     private readonly IEventRepository _repository;
@@ -19,42 +25,42 @@ public class EventService : IEventService
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EventResponse>> GetAllAsync()
+    public async Task<IEnumerable<EventResponse>> GetAllAsync(CancellationToken ct)
     {
-        var events = await _repository.GetAllAsync();
-        return events.Select(e => MapToResponse(e));
+        var events = await _repository.GetAllAsync(ct);
+        return events.Select(e => EventMapper.MapToResponse(e));
     }
 
     /// <inheritdoc/>
-    public async Task<PaginatedResponse<EventResponse>> GetPaginatedEventsAsync(EventsFilter filter)
+    public async Task<PaginatedResponse<EventResponse>> GetPaginatedEventsAsync(EventsFilter filter, CancellationToken ct)
     {
-        var events = await _repository.GetPaginatedEventsAsync(filter);
-        
+        var events = await _repository.GetPaginatedEventsAsync(filter, ct);
+
         return new PaginatedResponse<EventResponse>()
         {
             Page = filter.Page,
             PageSize = filter.PageSize,
-            TotalCount = await _repository.EventsCount(filter),
-            Items = [.. events.Select(e => MapToResponse(e))]
+            TotalCount = await _repository.EventsCountAsync(filter, ct),
+            Items = [.. events.Select(e => EventMapper.MapToResponse(e))]
         };
     }
 
     /// <inheritdoc/>
-    public async Task<EventResponse?> GetByIdAsync(Guid id)
+    public async Task<EventResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var ev = await _repository.GetByIdAsync(id);
+        var ev = await _repository.GetByIdAsync(id, ct);
 
-        return ev is not null ? MapToResponse(ev) : throw new KeyNotFoundException($"Событие с ID {id} не найдено.");;
+        return ev is not null ? EventMapper.MapToResponse(ev) : throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.");;
     }
 
     /// <inheritdoc/>
-    public async Task<EventResponse> CreateAsync(EventRequest createEventRequest)
+    public async Task<EventResponse> CreateAsync(EventRequest createEventRequest, CancellationToken ct)
     {
         if (createEventRequest.EndAt < createEventRequest.StartAt)
-            throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала.");
+            throw new ValidationDomainException("Дата окончания события должна быть больше или равна дате начала.");
 
-        if (createEventRequest.Title is null || createEventRequest.Title == string.Empty)
-            throw new ArgumentException("Название события не может быть пустым.");
+        if (string.IsNullOrEmpty(createEventRequest.Title))
+            throw new ValidationDomainException("Название события не может быть пустым.");
 
 
         var newEvent = new EventEntity {
@@ -65,47 +71,33 @@ public class EventService : IEventService
             EndAt = createEventRequest.EndAt
         };
 
-        await _repository.CreateAsync(newEvent);
+        await _repository.CreateAsync(newEvent, ct);
 
-        return MapToResponse(newEvent);
+        return EventMapper.MapToResponse(newEvent);
     }
 
     /// <inheritdoc/>
-    public async Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEvent)
+    public async Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEvent, CancellationToken ct)
     {
         if (updateEvent.EndAt < updateEvent.StartAt)
-            throw new ArgumentException("Дата окончания события должна быть больше или равна дате начала.");
+            throw new ValidationDomainException("Дата окончания события должна быть больше или равна дате начала.");
 
-        var entity = MapToEntity(id, updateEvent);
-              
-        await _repository.UpdateAsync(entity);
-        
-        return MapToResponse(entity);
+        var entity = EventMapper.MapToEntity(id, updateEvent);
+
+        await _repository.UpdateAsync(entity, ct);
+
+        return EventMapper.MapToResponse(entity);
     }
 
     /// <inheritdoc/>
-    public async Task<bool> DeleteAsync(Guid id)
+    public Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
-        return await _repository.DeleteAsync(id);
+        return _repository.DeleteAsync(id, ct);
     }
 
-    private static EventResponse MapToResponse(EventEntity ev) =>
-        new()
-        {
-            Id = ev.Id,
-            Title = ev.Title,
-            Description = ev.Description,
-            StartAt = ev.StartAt,
-            EndAt = ev.EndAt
-        };
-
-    private static EventEntity MapToEntity(Guid Id, EventRequest ev) =>
-        new()
-        {
-            Id = Id,
-            Title = ev.Title,
-            Description = ev.Description,
-            StartAt = ev.StartAt,
-            EndAt = ev.EndAt
-        };
+    /// <inheritdoc/>
+    public Task<bool> IsExistAsync(Guid id, CancellationToken ct)
+    {
+        return _repository.IsExistsAsync(id, ct);
+    }
 }
