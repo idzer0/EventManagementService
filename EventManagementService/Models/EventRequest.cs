@@ -1,6 +1,7 @@
 namespace EventManagementService.Models;
 
 using System.ComponentModel.DataAnnotations;
+using EventManagementService.Contracts;
 
 /// <summary>
 /// Сущность для хранения данных, передаваемых в методы контроллера управления событиями
@@ -17,4 +18,8 @@ public class EventRequest
 
     [Required(ErrorMessage = "Дата окончания события обязательна к заполнению")]
     public DateTime EndAt { get; set; }
+
+    [Range(1, double.MaxValue)]
+    [Required(ErrorMessage = "Количество мест должно быть больше нуля.")]
+    public int TotalSeats { get; set; }
 }

@@ -22,5 +22,5 @@ public interface IBookingRepository
     /// <summary>
     /// Обновить информацию о бронировании.
     /// </summary>
-    Task<BookingEntity?> UpdateBookingAsync(BookingEntity entity, CancellationToken ct);
+    Task UpdateBookingAsync(BookingEntity entity, CancellationToken ct);
 }

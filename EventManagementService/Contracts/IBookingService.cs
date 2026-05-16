@@ -23,4 +23,9 @@ public interface IBookingService
     /// Обработать ожидающую заявку на бронирование
     /// </summary>
     Task ProcessPendingBookingAsync(Guid bookingId, CancellationToken ct);
+
+    /// <summary>
+    /// Отмена брони
+    /// </summary>
+    Task RejectAsync(Guid bookingId, CancellationToken ct);
 }

@@ -50,14 +50,14 @@ public class DbContextMocker()
 
     public IBookingService ArrangeBookingServiceTestCase(
         AppDbContext dbContext,
-        IEventService eventService,
+        IEventRepository eventRepository,
         List<BookingEntity>? bookings)
     {
         AddItemsToDbContext(dbContext, bookings);
 
         IBookingRepository repoBookings =  new BookingRepository(dbContext, NullLogger<BookingRepository>.Instance);
 
-        return new BookingService(repoBookings, eventService, NullLogger<BookingService>.Instance);
+        return new BookingService(repoBookings, eventRepository, NullLogger<BookingService>.Instance);
     }
 
 

@@ -1,4 +1,5 @@
 using EventManagementService.Contracts;
+using EventManagementService.DomainExceptions;
 using EventManagementService.Models;
 using EventManagementService.Services;
 using EventManagementService.ServicesBackground;
@@ -32,11 +33,13 @@ public class BookingServiceTestsPositive
             Description = "Test event",
             StartAt = DateTime.Now.Date.AddDays(1),
             EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
         var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_ValidOneBooking_ReturnsPendingBooking));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, [ev]);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
 
         var result = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
@@ -58,11 +61,13 @@ public class BookingServiceTestsPositive
             Description = "Test event",
             StartAt = DateTime.Now.Date.AddDays(1),
             EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
         var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_ValidSomeBooking_ReturnsPendingBooking));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, [ev]);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
 
         var result1 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
         var result2 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
@@ -100,11 +105,13 @@ public class BookingServiceTestsPositive
             Description = "Test event",
             StartAt = DateTime.Now.Date.AddDays(1),
             EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
         var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.GetBookingByIdAsync_GetValidBooking_ReturnsBooking));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, [ev]);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
 
         var bookingInfo = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
@@ -118,29 +125,31 @@ public class BookingServiceTestsPositive
         result.ProcessedAt.Should().Be(bookingInfo.ProcessedAt);
     }
 
-[Fact]
-    public async Task ProcessPendingBookingAsync_GetConfirStatus_ReturnsBooking()
+    [Fact]
+    public async Task ProcessPendingBookingAsync_GetConfirmStatus_ReturnsBooking()
     {
         Guid eventId = Guid.NewGuid();
 
         var ev = new EventEntity
         {
             Id = eventId,
-            Title = "Test event",
-            Description = "Test event",
+            Title = "Test event 1",
+            Description = "Test event 1",
             StartAt = DateTime.Now.Date.AddDays(1),
             EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
-        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.ProcessPendingBookingAsync_GetConfirStatus_ReturnsBooking));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, [ev]);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.ProcessPendingBookingAsync_GetConfirmStatus_ReturnsBooking));
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
 
         var bookingInfo = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
         await bookingService.ProcessPendingBookingAsync(bookingInfo.Id, CancellationToken.None);
-
         var result = await bookingService.GetBookingByIdAsync(bookingInfo.Id, CancellationToken.None);
+        var resultEvent = await repoEvents.GetByIdAsync(eventId, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Id.Should().Be(bookingInfo.Id);
@@ -150,5 +159,80 @@ public class BookingServiceTestsPositive
 
         bookingInfo.ProcessedAt.Should().BeNull();
         result.ProcessedAt.Should().NotBeNull();
+
+        #pragma warning disable CS8602
+        resultEvent.AvailableSeats.Should().Be(99);
+        #pragma warning restore CS8602
+    }
+
+    [Fact]
+    public async Task CreateBookingAsync_CheckSeatsLimit_ReturnsThrow()
+    {
+        Guid eventId = Guid.NewGuid();
+
+        var ev = new EventEntity
+        {
+            Id = eventId,
+            Title = "Test event",
+            Description = "Test limit event",
+            StartAt = DateTime.Now.Date.AddDays(1),
+            EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 2,
+            AvailableSeats = 2,
+        };
+
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateBookingAsync_CheckSeatsLimit_ReturnsThrow));
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
+
+        var bookingInfo1 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+        var bookingInfo2 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+        Func<Task> bookingInfo3 = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+
+        bookingInfo1.Should().NotBeNull();
+        bookingInfo2.Should().NotBeNull();
+        bookingInfo1.Id.Should().NotBe(bookingInfo2.Id);
+        bookingInfo1.EventId.Should().Be(bookingInfo2.EventId);
+
+        await bookingInfo3.Should().ThrowAsync<NoAvailableSeatsDomainException>()
+            .WithMessage("No available seats for this event");
+    }
+
+    [Fact]
+    public async Task RejectAsync_RejectAndThenCreate_CheckAvaliableSeats()
+    {
+        Guid eventId = Guid.NewGuid();
+
+        var ev = new EventEntity
+        {
+            Id = eventId,
+            Title = "Test event",
+            Description = "Test limit event",
+            StartAt = DateTime.Now.Date.AddDays(1),
+            EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 2,
+            AvailableSeats = 2,
+        };
+
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.RejectAsync_RejectAndThenCreate_CheckAvaliableSeats));
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
+
+        var bookingInfo1 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+        var bookingInfo2 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+
+        await bookingService.RejectAsync(bookingInfo1.Id, CancellationToken.None);
+        var bookingInfo3 = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+
+        var bookingInfo1_1 = await bookingService.GetBookingByIdAsync(bookingInfo1.Id, CancellationToken.None);
+
+        bookingInfo1.Should().NotBeNull();
+        bookingInfo2.Should().NotBeNull();
+        bookingInfo3.Should().NotBeNull();
+        bookingInfo1.Id.Should().NotBe(bookingInfo2.Id);
+        bookingInfo1_1.EventId.Should().Be(bookingInfo2.EventId);
+        bookingInfo1_1.Status.Should().Be(BookingStatusEnum.Rejected);
+        bookingInfo3.EventId.Should().Be(bookingInfo1_1.EventId);
+        bookingInfo3.Status.Should().Be(BookingStatusEnum.Pending);
     }
 }

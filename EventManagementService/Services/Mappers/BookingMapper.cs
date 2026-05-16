@@ -4,9 +4,8 @@ namespace EventManagementService.Services.Mappers;
 
 public static class BookingMapper
 {
-    public static BookingInfo MapToResponse(BookingEntity entity)
-    {
-        return new BookingInfo()
+    public static BookingInfo MapToResponse(BookingEntity entity) =>
+        new()
         {
             Id = entity.Id,
             EventId = entity.EventId,
@@ -14,5 +13,4 @@ public static class BookingMapper
             CreatedAt = entity.CreatedAt,
             ProcessedAt = entity.ProcessedAt,
         };
-    }
 }

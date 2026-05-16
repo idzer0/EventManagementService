@@ -33,5 +33,31 @@ public class BookingEntity
     /// <summary>
     /// Дата и время обработки брони.
     /// </summary>
-    public DateTimeOffset? ProcessedAt {get; set;}
+    public DateTimeOffset? ProcessedAt { get; set; }
+
+    /// <summary>
+    /// Подтверждение брони.
+    /// </summary>
+    public bool Confirm()
+    {
+        if (Status != BookingStatusEnum.Pending)
+            return false;
+
+        Status = BookingStatusEnum.Confirmed;
+        ProcessedAt = DateTimeOffset.UtcNow;
+        return true;
+    }
+
+    /// <summary>
+    /// Отказ в бронировании.
+    /// </summary>
+    public bool Reject()
+    {
+        if (Status == BookingStatusEnum.Rejected)
+            return false;
+
+        Status = BookingStatusEnum.Rejected;
+        ProcessedAt = DateTimeOffset.UtcNow;
+        return true;
+    }
 }

@@ -17,7 +17,7 @@ public interface IEventService
     /// <summary>
     /// Получить событие по Id
     /// </summary>
-    Task<EventResponse?> GetByIdAsync(Guid eventId, CancellationToken ct);
+    Task<EventEntity> GetByIdAsync(Guid eventId, CancellationToken ct);
 
     /// <summary>
     /// Создать событие
@@ -27,7 +27,7 @@ public interface IEventService
     /// <summary>
     /// Обновить событие
     /// </summary>
-    Task<EventResponse?> UpdateAsync(Guid id, EventRequest updateEventRequest, CancellationToken ct);
+    Task<EventResponse> UpdateAsync(Guid id, EventRequest? updateEventRequest, CancellationToken ct);
 
     /// <summary>
     /// Удалить событие

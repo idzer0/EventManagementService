@@ -53,11 +53,9 @@ public class BookingRepository : IBookingRepository
     }
 
     /// <inheritdoc/>
-    public async Task<BookingEntity?> UpdateBookingAsync(BookingEntity entity, CancellationToken ct)
+    public async Task UpdateBookingAsync(BookingEntity entity, CancellationToken ct)
     {
         _context.Bookings.Update(entity);
         await _context.SaveChangesAsync(ct);
-
-        return await _context.Bookings.SingleAsync(b => b.Id == entity.Id, ct);
     }
 }

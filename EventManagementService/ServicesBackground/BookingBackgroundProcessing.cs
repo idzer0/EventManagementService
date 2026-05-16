@@ -29,12 +29,12 @@ public class BookingBackgroundProcessing : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var _bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
 
-                foreach (var guid in await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct))
-                {
-                    // имитация бурной деятельности
-                    await Task.Delay(2000, ct);
-                    await _bookingService.ProcessPendingBookingAsync(guid, ct);
-                }
+                var guids = await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct);
+
+                await Task.WhenAll(guids.Select(
+                    async guid => await ProcessPendingBookingAsync(_bookingService, guid, ct)
+                ));
+
 
                 // Пауза перед следующим циклом
                 await Task.Delay(1000, ct);
@@ -47,6 +47,13 @@ public class BookingBackgroundProcessing : BackgroundService
             {
                 _logger.LogWarning(nfe, "KeyNotFoundException при работе фонового процесса обработки бронирований.");
             }
+            catch (AggregateException ae)
+            {
+                foreach (var ex in ae.InnerExceptions)
+                {
+                    _logger.LogError(ex, "Ошибка при обработке бронирований.");
+                }
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при работе фонового процесса обработки бронирований.");
@@ -56,5 +63,12 @@ public class BookingBackgroundProcessing : BackgroundService
         }
 
         _logger.LogInformation("Сервис BookingBackgroundProcessing завершил работу");
+    }
+
+    private async Task ProcessPendingBookingAsync(IBookingService service, Guid guid, CancellationToken ct)
+    {
+        await Task.Delay(2000, ct);
+
+        await service.ProcessPendingBookingAsync(guid, ct);
     }
 }

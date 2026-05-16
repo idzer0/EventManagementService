@@ -39,7 +39,7 @@ public interface IEventRepository
     /// <summary>
     /// Обновить событие
     /// </summary>
-    Task<EventEntity?> UpdateAsync(EventEntity eventData, CancellationToken ct);
+    Task<EventEntity> UpdateAsync(EventEntity eventData, CancellationToken ct);
 
     /// <summary>
     /// Удалить событие

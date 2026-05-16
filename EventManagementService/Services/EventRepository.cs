@@ -74,7 +74,9 @@ public class EventRepository : IEventRepository
             Title = createEventRequest.Title,
             Description = createEventRequest.Description ?? string.Empty,
             StartAt = createEventRequest.StartAt,
-            EndAt = createEventRequest.EndAt
+            EndAt = createEventRequest.EndAt,
+            TotalSeats = createEventRequest.TotalSeats,
+            AvailableSeats = createEventRequest.AvailableSeats,
         };
 
         await _context.Events.AddAsync(newEvent, ct);
@@ -86,10 +88,10 @@ public class EventRepository : IEventRepository
     }
 
     /// <inheritdoc/>
-    public async Task<EventEntity?> UpdateAsync(EventEntity updateEventRequest, CancellationToken ct)
+    public async Task<EventEntity> UpdateAsync(EventEntity updateEventRequest, CancellationToken ct)
     {
-        var existing = await _context.Events.SingleOrDefaultAsync(e => e.Id == updateEventRequest.Id, ct)
-            ?? throw new ObjectNotFoundDomainException($"Событие с Id {updateEventRequest.Id} не найдено.");
+        if (!await IsExistsAsync(updateEventRequest.Id, ct))
+            throw new ObjectNotFoundDomainException($"Событие с Id {updateEventRequest.Id} не найдено.");
 
         _context.Events.Update(updateEventRequest);
         await _context.SaveChangesAsync(ct);
