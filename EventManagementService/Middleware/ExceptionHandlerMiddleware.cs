@@ -99,6 +99,7 @@ public class ExceptionHandlerMiddleware
             ObjectNotFoundDomainException onfe => StatusCodes.Status404NotFound,
             ValidationException ve => StatusCodes.Status400BadRequest,
             KeyNotFoundException nfe => StatusCodes.Status404NotFound,
+            NoAvailableSeatsDomainException nasde => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
 
@@ -112,6 +113,7 @@ public class ExceptionHandlerMiddleware
             {
                 StatusCodes.Status400BadRequest => "Некорректный запрос",
                 StatusCodes.Status404NotFound => "Ресурс не найден",
+                StatusCodes.Status409Conflict => "Конфликт при обработке данных",
                 StatusCodes.Status500InternalServerError => "Внутренняя ошибка сервера",
                 _ => "Ошибка при обработке запроса"
             };

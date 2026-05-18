@@ -27,8 +27,8 @@ public class BookingServiceFailTests
         Guid eventId = Guid.NewGuid();
 
         var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_MissingEvent_ThrowsObjectNotFoundDomainException));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, null);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, []);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
 
         Func<Task> act = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
@@ -48,13 +48,15 @@ public class BookingServiceFailTests
             Description = "Test event",
             StartAt = DateTime.Now.Date.AddDays(1),
             EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
         var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_ForDeletedEvent_ThrowsObjectNotFoundDomainException));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, [ev]);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, []);
 
-        await eventService.DeleteAsync(eventId, CancellationToken.None);
+        await repoEvents.DeleteAsync(eventId, CancellationToken.None);
         Func<Task> act = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
 
         await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
@@ -67,12 +69,69 @@ public class BookingServiceFailTests
         Guid Id = Guid.NewGuid();
 
         var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.GetByIdAsync_NonExistingId_ThrowsObjectNotFoundDomainException));
-        var eventService = _dbContextMocker.ArrangeEventServiceTestCase(dbContext, null);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, eventService, null);
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, []);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, null);
 
         Func<Task> act = async () => await bookingService.GetBookingByIdAsync(Id, CancellationToken.None);
 
         await act.Should().ThrowAsync<ObjectNotFoundDomainException>()
             .WithMessage($"Бронь с Id {Id} не найдена.");
+    }
+
+    [Fact]
+    public async Task CreateBookingAsync_NotAvaliableSeats_NoAvailableSeatsDomainException()
+    {
+        Guid eventId = Guid.NewGuid();
+
+        var ev = new EventEntity
+        {
+            Id = eventId,
+            Title = "Test event",
+            Description = "Test event",
+            StartAt = DateTime.Now.Date.AddDays(1),
+            EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 0,
+        };
+
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateBookingAsync_NotAvaliableSeats_NoAvailableSeatsDomainException));
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, []);
+
+        Func<Task> act = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<NoAvailableSeatsDomainException>()
+            .WithMessage("No available seats for this event");
+    }
+
+    [Fact]
+    public async Task ProcessPendingBookingAsync_ForDeletedEvent_BookingStatusReject()
+    {
+        Guid eventId = Guid.NewGuid();
+
+        var ev = new EventEntity
+        {
+            Id = eventId,
+            Title = "Test event",
+            Description = "Test event",
+            StartAt = DateTime.Now.Date.AddDays(1),
+            EndAt = DateTime.Now.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 100,
+        };
+
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_ForDeletedEvent_ThrowsObjectNotFoundDomainException));
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, []);
+
+        var booking = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+
+        await repoEvents.DeleteAsync(eventId, CancellationToken.None);
+        await bookingService.ProcessPendingBookingAsync(booking.Id, CancellationToken.None);
+
+        var booking2 = await bookingService.GetBookingByIdAsync(booking.Id, CancellationToken.None);
+
+        booking2.Status.Should().Be(BookingStatusEnum.Rejected);
+        booking2.ProcessedAt.Should().NotBeNull();
     }
 }

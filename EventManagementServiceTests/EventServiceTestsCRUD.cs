@@ -1,11 +1,12 @@
-﻿using Moq;
+﻿using Castle.Core.Logging;
 using EventManagementService.Contracts;
 using EventManagementService.Models;
+using EventManagementService.Services;
+using EventManagementServiceTests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using EventManagementService.Services;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 
 namespace EventManagementServiceTests;
 
@@ -14,9 +15,11 @@ public class EventServiceTestsCRUD
 {
     private readonly Mock<IEventRepository> _mockRepository;
     private readonly IEventService _service;
+    private readonly DbContextMocker _dbContextMocker;
 
     public EventServiceTestsCRUD ()
     {
+        _dbContextMocker = new DbContextMocker();
         _mockRepository = new Mock<IEventRepository>();
         _service = new EventService(_mockRepository.Object, NullLogger<EventService>.Instance);
     }
@@ -30,6 +33,7 @@ public class EventServiceTestsCRUD
             Description = "Описание проверочного события",
             StartAt = DateTime.UtcNow.AddDays(1),
             EndAt = DateTime.UtcNow.AddDays(2),
+            TotalSeats = 100,
         };
 
         var createdEvent = new EventEntity
@@ -39,6 +43,8 @@ public class EventServiceTestsCRUD
             Description = newEvent.Description,
             StartAt = newEvent.StartAt,
             EndAt = newEvent.EndAt,
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
         _mockRepository.Setup(repo => repo.CreateAsync(It.IsAny<EventEntity>(), CancellationToken.None))
@@ -79,26 +85,31 @@ public class EventServiceTestsCRUD
     public async Task UpdateAsync_ValidEvent_ReturnsUpdatedEvent()
     {
         var eventId = Guid.NewGuid();
-        var existingEvent = new EventEntity
+        var updatedEvent = new EventEntity
         {
             Id = eventId,
-            Title = "Устаревшее наименование",
+            Title = "Новое наименование",
+            Description = "Обновленное описание",
             StartAt = DateTime.UtcNow,
-            EndAt = DateTime.UtcNow.AddDays(1)
+            EndAt = DateTime.UtcNow.AddDays(1),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
-        var updatedEvent = new EventRequest
+        var eventRequest = new EventRequest
         {
             Title = "Новое наименование",
             Description = "Обновленное описание",
             StartAt = DateTime.UtcNow,
             EndAt = DateTime.UtcNow.AddDays(2),
+            TotalSeats = 100,
         };
 
-        _mockRepository.Setup(repo => repo.UpdateAsync(It.IsAny<EventEntity>(), CancellationToken.None))
-            .ReturnsAsync(existingEvent);
 
-        var result = await _service.UpdateAsync(eventId, updatedEvent, CancellationToken.None);
+        _mockRepository.Setup(repo => repo.UpdateAsync(It.IsAny<EventEntity>(), CancellationToken.None))
+            .ReturnsAsync(updatedEvent);
+
+        var result = await _service.UpdateAsync(eventId, eventRequest, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Title.Should().Be("Новое наименование");

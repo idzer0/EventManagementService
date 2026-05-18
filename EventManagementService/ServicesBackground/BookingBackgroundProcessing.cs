@@ -9,6 +9,8 @@ public class BookingBackgroundProcessing : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingBackgroundProcessing> _logger;
 
+    private readonly int maxConcurrency = Environment.ProcessorCount;
+
     public BookingBackgroundProcessing(
         IServiceScopeFactory scopeFactory,
         ILogger<BookingBackgroundProcessing> logger)
@@ -29,15 +31,15 @@ public class BookingBackgroundProcessing : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var _bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
 
-                foreach (var guid in await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct))
-                {
-                    // имитация бурной деятельности
-                    await Task.Delay(2000, ct);
-                    await _bookingService.ProcessPendingBookingAsync(guid, ct);
-                }
+                var guids = await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct, maxConcurrency);
+
+                await Task.WhenAll(guids.Select(
+                    async guid => await ProcessPendingBookingAsync(_bookingService, guid, ct)
+                ));
+
 
                 // Пауза перед следующим циклом
-                await Task.Delay(1000, ct);
+                await Task.Delay(5000, ct);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {
@@ -46,6 +48,13 @@ public class BookingBackgroundProcessing : BackgroundService
             catch (KeyNotFoundException nfe)
             {
                 _logger.LogWarning(nfe, "KeyNotFoundException при работе фонового процесса обработки бронирований.");
+            }
+            catch (AggregateException ae)
+            {
+                foreach (var ex in ae.InnerExceptions)
+                {
+                    _logger.LogError(ex, "Ошибка при обработке бронирований.");
+                }
             }
             catch (Exception ex)
             {
@@ -56,5 +65,12 @@ public class BookingBackgroundProcessing : BackgroundService
         }
 
         _logger.LogInformation("Сервис BookingBackgroundProcessing завершил работу");
+    }
+
+    private async Task ProcessPendingBookingAsync(IBookingService service, Guid guid, CancellationToken ct)
+    {
+        await Task.Delay(2000, ct);
+
+        await service.ProcessPendingBookingAsync(guid, ct);
     }
 }

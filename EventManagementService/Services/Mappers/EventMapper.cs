@@ -11,7 +11,9 @@ public static class EventMapper
             Title = ev.Title,
             Description = ev.Description,
             StartAt = ev.StartAt,
-            EndAt = ev.EndAt
+            EndAt = ev.EndAt,
+            AvailableSeats = ev.AvailableSeats,
+            TotalSeats = ev.TotalSeats,
         };
 
     public static EventEntity MapToEntity(Guid Id, EventRequest ev) =>
@@ -21,6 +23,7 @@ public static class EventMapper
             Title = ev.Title,
             Description = ev.Description,
             StartAt = ev.StartAt,
-            EndAt = ev.EndAt
+            EndAt = ev.EndAt,
+            TotalSeats = ev.TotalSeats,
         };
 }

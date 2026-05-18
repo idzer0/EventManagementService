@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using EventManagementService.Models;
 using EventManagementService.Contracts;
+using EventManagementService.Models;
+using EventManagementService.Services.Mappers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EventManagementService.Controllers;
 
@@ -38,7 +39,7 @@ public class EventController : ControllerBase
     {
         var ev = await _eventService.GetByIdAsync(id, ct);
 
-        return Ok(ev);
+        return Ok(EventMapper.MapToResponse(ev));
     }
 
     /// <summary>
@@ -87,6 +88,7 @@ public class EventController : ControllerBase
     [HttpPost("{id:guid}/book")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<BookingInfo>> CreateBookingAsync(Guid id, CancellationToken ct)
     {
         var booking = await _bookingService.CreateBookingAsync(id, ct);

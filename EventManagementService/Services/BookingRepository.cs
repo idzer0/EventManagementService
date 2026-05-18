@@ -44,20 +44,20 @@ public class BookingRepository : IBookingRepository
     }
 
     /// <inheritdoc/>
-    public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct)
+    public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct, int num = 10)
     {
         return _context.Bookings
             .Where(b => b.Status == status)
+            .OrderBy(x => x.CreatedAt)
+            .Take(num)
             .Select(book => book.Id)
             .ToListAsync(ct);
     }
 
     /// <inheritdoc/>
-    public async Task<BookingEntity?> UpdateBookingAsync(BookingEntity entity, CancellationToken ct)
+    public async Task UpdateBookingAsync(BookingEntity entity, CancellationToken ct)
     {
         _context.Bookings.Update(entity);
         await _context.SaveChangesAsync(ct);
-
-        return await _context.Bookings.SingleAsync(b => b.Id == entity.Id, ct);
     }
 }

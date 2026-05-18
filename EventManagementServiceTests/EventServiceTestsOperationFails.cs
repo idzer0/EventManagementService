@@ -1,14 +1,14 @@
-﻿using Moq;
+﻿using Castle.Core.Logging;
 using EventManagementService.Contracts;
-using EventManagementService.Models;
-using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using EventManagementService.Services;
-using Castle.Core.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using EventManagementServiceTests.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using EventManagementService.DomainExceptions;
+using EventManagementService.Models;
+using EventManagementService.Services;
+using EventManagementServiceTests.Infrastructure;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 
 namespace EventManagementServiceTests;
 
@@ -84,14 +84,17 @@ public class EventServiceTestsOperationFails
             Id = eventId,
             Title = "Existing",
             StartAt = DateTime.UtcNow,
-            EndAt = DateTime.UtcNow.AddDays(1)
+            EndAt = DateTime.UtcNow.AddDays(1),
+            TotalSeats = 100,
+            AvailableSeats = 100,
         };
 
         var invalidUpdate = new EventRequest
         {
             Title = "Invalid",
             StartAt = DateTime.UtcNow.AddDays(2),
-            EndAt = DateTime.UtcNow.AddDays(1)
+            EndAt = DateTime.UtcNow.AddDays(1),
+            TotalSeats = 100,
         };
 
         _mockRepository.Setup(repo => repo.GetByIdAsync(eventId, CancellationToken.None))
@@ -108,15 +111,20 @@ public class EventServiceTestsOperationFails
     public async Task UpdateAsync_MissingEvent_ThrowsObjectNotFoundDomainException()
     {
         var nonExistentEvent = new EventRequest()
-            { Title = "Несуществующее событие", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) };
+        {
+            Title = "Несуществующее событие",
+            StartAt = DateTime.UtcNow,
+            EndAt = DateTime.UtcNow.AddDays(1),
+            TotalSeats = 100,
+        };
 
         var nonExistentEventId = Guid.NewGuid();
 
         var events = new List<EventEntity>
         {
-            new() { Id = Guid.NewGuid(), Title = "Музыкальный фестиваль", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) },
-            new() { Id = Guid.NewGuid(), Title = "Техническая конференция", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) },
-            new() { Id = Guid.NewGuid(), Title = "Встреча 1 to 1", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) }
+            new() { Id = Guid.NewGuid(), Title = "Музыкальный фестиваль", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1), TotalSeats = 100, AvailableSeats = 100 },
+            new() { Id = Guid.NewGuid(), Title = "Техническая конференция", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1), TotalSeats = 100, AvailableSeats = 100 },
+            new() { Id = Guid.NewGuid(), Title = "Встреча 1 to 1", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1), TotalSeats = 100, AvailableSeats = 100 }
         };
 
         var service = _dbContextMocker.ArrangeEventServiceTestCase(
