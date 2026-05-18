@@ -9,6 +9,8 @@ public class BookingBackgroundProcessing : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingBackgroundProcessing> _logger;
 
+    private readonly int maxConcurrency = Environment.ProcessorCount;
+
     public BookingBackgroundProcessing(
         IServiceScopeFactory scopeFactory,
         ILogger<BookingBackgroundProcessing> logger)
@@ -29,7 +31,7 @@ public class BookingBackgroundProcessing : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var _bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
 
-                var guids = await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct);
+                var guids = await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct, maxConcurrency);
 
                 await Task.WhenAll(guids.Select(
                     async guid => await ProcessPendingBookingAsync(_bookingService, guid, ct)
@@ -37,7 +39,7 @@ public class BookingBackgroundProcessing : BackgroundService
 
 
                 // Пауза перед следующим циклом
-                await Task.Delay(1000, ct);
+                await Task.Delay(5000, ct);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {

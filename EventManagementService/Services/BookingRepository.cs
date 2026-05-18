@@ -44,10 +44,12 @@ public class BookingRepository : IBookingRepository
     }
 
     /// <inheritdoc/>
-    public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct)
+    public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct, int num = 10)
     {
         return _context.Bookings
             .Where(b => b.Status == status)
+            .OrderBy(x => x.CreatedAt)
+            .Take(num)
             .Select(book => book.Id)
             .ToListAsync(ct);
     }

@@ -25,7 +25,7 @@ REST API сервис, позволяющий:
    git clone https://github.com/idzer0/EventManagementService.git
    cd EventManagementService
 
-2. Востановить зависимости:
+2. Восстановить зависимости:
     dotnet restore
 
 3. Собрать проект:

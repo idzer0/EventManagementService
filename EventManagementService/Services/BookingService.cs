@@ -32,8 +32,6 @@ public class BookingService : IBookingService
         if(!await _repoEvents.IsExistsAsync(eventId, ct))
             throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        BookingEntity booking;
-
         await _bookingSemaphore.WaitAsync(ct);
         try
         {
@@ -66,9 +64,9 @@ public class BookingService : IBookingService
     }
 
     /// <inheritdoc/>
-    public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct)
+    public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct, int num = 10)
     {
-        return _repoBooking.GetBookingIdsByStatusAsync(status, ct);
+        return _repoBooking.GetBookingIdsByStatusAsync(status, ct, num);
     }
 
     /// <inheritdoc/>

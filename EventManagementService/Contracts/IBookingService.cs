@@ -17,7 +17,7 @@ public interface IBookingService
     /// <summary>
     /// Получить список Id бронирований с определенным статусом
     /// </summary>
-    Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct);
+    Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct, int num);
 
     /// <summary>
     /// Обработать ожидающую заявку на бронирование
