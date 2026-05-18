@@ -99,6 +99,7 @@ public class ExceptionHandlerMiddleware
             ObjectNotFoundDomainException onfe => StatusCodes.Status404NotFound,
             ValidationException ve => StatusCodes.Status400BadRequest,
             KeyNotFoundException nfe => StatusCodes.Status404NotFound,
+            NoAvailableSeatsDomainException nasde => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError
         };
 

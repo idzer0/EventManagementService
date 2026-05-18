@@ -98,14 +98,13 @@ public class BookingService : IBookingService
                 }
                 else //для почти невозможного случая одновременной обработки брони с одним Id
                 {
-                    if (ev.ReleaseSeats())
-                        await _repoEvents.UpdateAsync(ev, ct);
-
-                    if (booking.Reject())
-                        await _repoBooking.UpdateBookingAsync(booking, ct);
-
-//                    throw new NoAvailableSeatsDomainException("No available seats for this event");
+                    await BookingRejectAsync(ev, booking, ct);
                 }
+            }
+            catch
+            {
+                await BookingRejectAsync(ev, booking, ct);
+                throw;
             }
             finally
             {
@@ -122,11 +121,15 @@ public class BookingService : IBookingService
 
         EventEntity? ev = await _repoEvents.GetByIdAsync(booking.EventId, ct);
 
+        await BookingRejectAsync(ev, booking, ct);
+    }
+
+    private async Task BookingRejectAsync(EventEntity? ev, BookingEntity booking, CancellationToken ct)
+    {
         if (ev?.ReleaseSeats() is true)
             await _repoEvents.UpdateAsync(ev, ct);
 
         if (booking.Reject())
             await _repoBooking.UpdateBookingAsync(booking, ct);
     }
-
 }
