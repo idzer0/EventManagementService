@@ -1,7 +1,6 @@
 
 using EventManagementService.Contracts;
 using EventManagementService.DomainExceptions;
-using EventManagementService.Infrastructure;
 using EventManagementService.Models;
 using EventManagementService.Services.Mappers;
 using Microsoft.AspNetCore.Mvc;

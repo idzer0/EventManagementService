@@ -8,7 +8,7 @@ public static class BookingMapper
         new()
         {
             Id = entity.Id,
-            EventId = entity.EventId,
+            EventId = entity.Event.Id,
             Status = entity.Status,
             CreatedAt = entity.CreatedAt,
             ProcessedAt = entity.ProcessedAt,

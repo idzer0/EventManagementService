@@ -2,12 +2,14 @@ using EventManagementService.DiContext.Application;
 using EventManagementService.DiContext.Infrastructure;
 using EventManagementService.DiContext.Presentation;
 using EventManagementService.Infrastructure;
+using EventManagementService.Infrastructure.DataAccess;
 using EventManagementService.Middleware;
 using EventManagementService.ServicesBackground;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddPresentation();
 
@@ -24,6 +26,12 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddHostedService<BookingBackgroundProcessing>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 

@@ -1,5 +1,6 @@
 using EventManagementService.Models;
 using Microsoft.EntityFrameworkCore;
+using EventManagementService.Infrastructure.DataAccess;
 
 namespace EventManagementService.Infrastructure;
 

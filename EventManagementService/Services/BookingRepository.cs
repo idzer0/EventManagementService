@@ -1,8 +1,8 @@
 using System.Collections;
 using EventManagementService.Contracts;
-using EventManagementService.Infrastructure;
 using EventManagementService.Models;
 using Microsoft.EntityFrameworkCore;
+using EventManagementService.Infrastructure.DataAccess;
 
 namespace EventManagementService.Services;
 
