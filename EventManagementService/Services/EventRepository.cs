@@ -1,9 +1,9 @@
 using System.Data;
 using EventManagementService.Contracts;
 using EventManagementService.DomainExceptions;
-using EventManagementService.Infrastructure;
 using EventManagementService.Models;
 using Microsoft.EntityFrameworkCore;
+using EventManagementService.Infrastructure.DataAccess;
 
 namespace EventManagementService.Services;
 

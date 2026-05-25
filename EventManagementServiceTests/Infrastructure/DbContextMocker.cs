@@ -1,5 +1,5 @@
 using EventManagementService.Contracts;
-using EventManagementService.Infrastructure;
+using EventManagementService.Infrastructure.DataAccess;
 using EventManagementService.Models;
 using EventManagementService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -23,17 +23,13 @@ public class DbContextMocker()
 
     public IEventRepository ArrangeEventsRepositoryTestCase(AppDbContext dbContext, List<EventEntity> items)
     {
-        dbContext.Events.AddRange(items);
-        dbContext.SaveChanges();
-
+        AddItemsToDbContext(dbContext, items);
         return new EventRepository(dbContext, NullLogger<EventRepository>.Instance);
     }
 
     public IBookingRepository ArrangeBookingRepositoryTestCase(AppDbContext dbContext, List<BookingEntity> items)
     {
-        dbContext.Bookings.AddRange(items);
-        dbContext.SaveChanges();
-
+        AddItemsToDbContext(dbContext, items);
         return new BookingRepository(dbContext, NullLogger<BookingRepository>.Instance);
     }
 

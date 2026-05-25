@@ -28,6 +28,10 @@ public class EventEntity
     [Required]
     public int AvailableSeats { get; set; }
 
+    // Навигационное свойство
+    public virtual ICollection<BookingEntity> Bookings { get; set; } = [];
+
+
     /// <summary>
     /// Проверяет количество доступных мест "count"
     /// </summary>

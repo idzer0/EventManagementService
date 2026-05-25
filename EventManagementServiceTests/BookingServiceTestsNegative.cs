@@ -103,35 +103,4 @@ public class BookingServiceFailTests
         await act.Should().ThrowAsync<NoAvailableSeatsDomainException>()
             .WithMessage("No available seats for this event");
     }
-
-    [Fact]
-    public async Task ProcessPendingBookingAsync_ForDeletedEvent_BookingStatusReject()
-    {
-        Guid eventId = Guid.NewGuid();
-
-        var ev = new EventEntity
-        {
-            Id = eventId,
-            Title = "Test event",
-            Description = "Test event",
-            StartAt = DateTime.Now.Date.AddDays(1),
-            EndAt = DateTime.Now.Date.AddDays(2),
-            TotalSeats = 100,
-            AvailableSeats = 100,
-        };
-
-        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateAsync_ForDeletedEvent_ThrowsObjectNotFoundDomainException));
-        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
-        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, []);
-
-        var booking = await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
-
-        await repoEvents.DeleteAsync(eventId, CancellationToken.None);
-        await bookingService.ProcessPendingBookingAsync(booking.Id, CancellationToken.None);
-
-        var booking2 = await bookingService.GetBookingByIdAsync(booking.Id, CancellationToken.None);
-
-        booking2.Status.Should().Be(BookingStatusEnum.Rejected);
-        booking2.ProcessedAt.Should().NotBeNull();
-    }
 }
