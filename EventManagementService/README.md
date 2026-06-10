@@ -48,6 +48,14 @@ http://localhost:5244/swagger (порт может отличаться; точ�
 ```bash
 dotnet test
 
+Для выполнения тестов проекта EventManagementServiceTestsDb требуется docker.
+В linux системах может возникать проблема с запуском контейнера из-за недостатка прав.
+Для решения этой проблемы следует выполнить следующие команды:
+
+```bash
+sudo chgrp "$(id -gn)" /var/run/docker.sock
+sudo chmod g+rw /var/run/docker.sock
+
 #### Статусы бронирования (BookingStatus)
 Статус	Описание
 Pending = 1	    Бронь создана, ожидает обработки
@@ -187,18 +195,13 @@ json
 #### Работа с изменениями схемы данных
 
 Создание изменений схемы данных: 
-
   dotnet ef migration add <имя_миграции>
   
-или для использования миграции через .sql файлы:
-
-  ./create-migration.sh /path/to/project [имя_миграции]
-
+  или через .sql файлы:
+    ./create-migration.sh /path/to/project [имя_миграции]
 
 Применение изменений к базе данных:
+  dotnet ef database update
 
-  dotnet ef migration update
-
-или для использования миграции через .sql файлы:
-
-  ./create-migration-sql.sh /path/to/project [имя_миграции]
+  или через .sql файлы:
+  ./apply-migration-sql.sh /path/to/project [имя_миграции]

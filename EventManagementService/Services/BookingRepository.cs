@@ -1,8 +1,8 @@
 using System.Collections;
 using EventManagementService.Contracts;
+using EventManagementService.Infrastructure.DataAccess;
 using EventManagementService.Models;
 using Microsoft.EntityFrameworkCore;
-using EventManagementService.Infrastructure.DataAccess;
 
 namespace EventManagementService.Services;
 
@@ -46,9 +46,9 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public Task<List<Guid>> GetBookingIdsByStatusAsync(BookingStatusEnum status, CancellationToken ct, int num = 10)
     {
-        return _context.Bookings
+        return _context.Bookings.AsNoTracking()
             .Where(b => b.Status == status)
-            .OrderBy(x => x.CreatedAt)
+            .OrderBy(b => b.CreatedAt)
             .Take(num)
             .Select(book => book.Id)
             .ToListAsync(ct);

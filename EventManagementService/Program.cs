@@ -1,11 +1,12 @@
 using EventManagementService.DiContext.Application;
-using EventManagementService.DiContext.Infrastructure;
+using EventManagementService.DiContext;
 using EventManagementService.DiContext.Presentation;
 using EventManagementService.Infrastructure;
 using EventManagementService.Infrastructure.DataAccess;
 using EventManagementService.Middleware;
 using EventManagementService.ServicesBackground;
 using Microsoft.EntityFrameworkCore;
+using EventManagementService.DiContext.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

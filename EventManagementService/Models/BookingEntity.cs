@@ -36,7 +36,7 @@ public class BookingEntity
     public DateTimeOffset? ProcessedAt { get; set; }
 
     // Навигационное свойство.
-    public virtual EventEntity Event { get; set; }
+    public virtual EventEntity? Event { get; set; }
 
     /// <summary>
     /// Подтверждение брони.
