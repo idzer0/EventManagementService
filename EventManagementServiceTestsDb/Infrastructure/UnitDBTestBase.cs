@@ -12,47 +12,28 @@ namespace EventManagementServiceTestsDb.Infrastructure;
 /// <summary>
 /// Базовый класс Unit тестов для проверки ограничений БД
 /// </summary>
-public abstract class UnitDBTestBase : IAsyncLifetime
+public abstract class UnitDBTestBase(PostgresFixture fixture) : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _pgcontainer = new PostgreSqlBuilder("postgres:16-alpine")
-        .WithDatabase("eventapi-test")
-        .WithTmpfsMount("/var/lib/postgresql/data") // Размещаем БД в памяти
-        .Build();
+    protected readonly PostgresFixture _fixture = fixture;
 
-    public async Task InitializeAsync()
-    {
-        await _pgcontainer.StartAsync();
-        await _pgcontainer.ExecScriptAsync("CREATE EXTENSION IF NOT EXISTS pg_trgm;");
-    }
+    public virtual Task InitializeAsync() => Task.CompletedTask;
+    public virtual Task DisposeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync()
-    {
-        await _pgcontainer.DisposeAsync();
-    }
-
-    /// <summary>
-    /// Инициализация контекста БД
-    /// </summary>
     protected AppDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(_pgcontainer.GetConnectionString())
+            .UseNpgsql(_fixture.ConnectionString)
             .Options;
 
         var context = new AppDbContext(options);
         context.Database.EnsureCreated();
-
         return context;
     }
 
-    /// <summary>
-    /// Сброс тестовых данных
-    /// </summary>
     protected async Task ResetDatabaseAsync()
     {
         NpgsqlConnection.ClearAllPools();
         await using var context = CreateContext();
-        await context.Database.ExecuteSqlRawAsync(
-             "TRUNCATE TABLE \"Bookings\", \"Events\" RESTART IDENTITY CASCADE");
+        await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Bookings\", \"Events\" RESTART IDENTITY CASCADE");
     }
 }
