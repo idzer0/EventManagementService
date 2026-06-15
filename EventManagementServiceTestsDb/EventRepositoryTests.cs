@@ -28,7 +28,7 @@ public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fix
         EventEntity? result = await repo.GetByIdAsync(eventId, CancellationToken.None);
 
         // Assert
-        result?.Id.Should().Be(result.Id);
+        result?.Id.Should().Be(eventId);
     }
 
     [Fact]
