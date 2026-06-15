@@ -8,8 +8,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EventManagementServiceTestsDb;
 
-[Collection("Операции c таблицей Bookings")]
-public class BookingCheckConstraintsTests(PostgresFixture fixture) : UnitDBTestBase(fixture), IClassFixture<PostgresFixture>
+[Collection("PostgresCollection")]
+public class BookingCheckConstraintsTests(PostgresFixture fixture) : UnitDBTestBase(fixture)
 {
     [Fact]
     public async Task AddAsync_CheckConstraint_ReturnThrow()

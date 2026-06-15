@@ -12,12 +12,9 @@ namespace EventManagementServiceTestsDb.Infrastructure;
 /// <summary>
 /// Базовый класс Unit тестов для проверки ограничений БД
 /// </summary>
-public abstract class UnitDBTestBase(PostgresFixture fixture) : IAsyncLifetime
+public abstract class UnitDBTestBase(PostgresFixture fixture)
 {
     protected readonly PostgresFixture _fixture = fixture;
-
-    public virtual Task InitializeAsync() => Task.CompletedTask;
-    public virtual Task DisposeAsync() => Task.CompletedTask;
 
     protected AppDbContext CreateContext()
     {

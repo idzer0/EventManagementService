@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EventManagementServiceTestsDb;
 
-[Collection("Успешные операции c репозиторием EventsRepository")]
-public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fixture), IClassFixture<PostgresFixture>
+[Collection("PostgresCollection")]
+public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fixture)
 {
     [Fact]
     public async Task CreateAsync_CreatedEventExist_ReturnOk()

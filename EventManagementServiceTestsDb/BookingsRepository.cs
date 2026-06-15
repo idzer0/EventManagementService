@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace EventManagementServiceTestsDb;
 
-[Collection("Успешные операции c репозиторием BookingsRepository")]
-public class BookingsTableTests(PostgresFixture fixture) : UnitDBTestBase(fixture), IClassFixture<PostgresFixture>
+[Collection("PostgresCollection")]
+public class BookingsTableTests(PostgresFixture fixture) : UnitDBTestBase(fixture)
 {
 
     [Fact]
