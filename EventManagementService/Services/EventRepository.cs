@@ -123,12 +123,12 @@ public class EventRepository : IEventRepository
             throw new ValidationDomainException("Номер страницы и размер страницы не могут быть равны нулю.");
 
         // Базовый запрос
-        var query = _context.Events.AsQueryable();
+        var query = _context.Events.AsNoTracking().AsQueryable();
 
         // Фильтрация через LINQ
         if (!string.IsNullOrWhiteSpace(filter.Title))
         {
-            query = query.Where(e => e.Title.Contains(filter.Title, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(e => EF.Functions.ILike(e.Title, $"%{filter.Title}%"));
         }
 
         if (filter.From.HasValue)

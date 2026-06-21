@@ -114,5 +114,8 @@ public class BookingServiceConcurentTests
 
         int countUnqueId = processedBookings.Select(book => book.Id).Distinct().Count();
         int countProcessed = processedBookings.Select(book => book.Status == BookingStatusEnum.Confirmed).Count();
+
+        Assert.Equal(10, countUnqueId);
+        Assert.Equal(10, countProcessed);
     }
 }

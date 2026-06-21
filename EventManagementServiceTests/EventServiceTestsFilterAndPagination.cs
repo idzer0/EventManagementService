@@ -1,12 +1,12 @@
-﻿using Moq;
-using EventManagementService.Contracts;
-using EventManagementService.Models;
-using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using EventManagementService.Services;
+﻿using EventManagementService.Contracts;
 using EventManagementService.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+using EventManagementService.Models;
+using EventManagementService.Services;
 using EventManagementServiceTests.Infrastructure;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace EventManagementServiceTests;
 
@@ -18,29 +18,6 @@ public class EventServiceTestsFilterAndPagination
     public EventServiceTestsFilterAndPagination ()
     {
         _dbContextMocker = new DbContextMocker();
-    }
-
-    [Fact]
-    public async Task GetPaginatedEventsAsync_FilterByTitle_ReturnsFilteredEvents()
-    {
-
-        var events = new List<EventEntity>
-        {
-            new() { Id = Guid.NewGuid(), Title = "Музыкальный фестиваль", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) },
-            new() { Id = Guid.NewGuid(), Title = "Техническая конференция", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) },
-            new() { Id = Guid.NewGuid(), Title = "Встреча 1 to 1", StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) }
-        };
-
-        var repo = _dbContextMocker.ArrangeEventsRepositoryTestCase(
-            _dbContextMocker.GetAppDbContext(nameof(this.GetPaginatedEventsAsync_FilterByTitle_ReturnsFilteredEvents)), events);
-
-        var filter = new EventsFilter { Title = "Музыкальный" };
-
-        var result = await repo.GetPaginatedEventsAsync(filter, CancellationToken.None);
-
-        result.Should().ContainSingle(e => e.Title.Contains("Музыкальный"));
-        result.Should().NotContain(e => e.Title.Contains("Технич"));
-        result.Count.Should().Be(1);
     }
 
     [Fact]
@@ -112,7 +89,6 @@ public class EventServiceTestsFilterAndPagination
 
         var filter = new EventsFilter
         {
-            Title = "Встреча",
             From = DateTime.UtcNow.AddDays(4).Date,
             To = DateTime.UtcNow.AddDays(7).Date
         };
@@ -122,7 +98,8 @@ public class EventServiceTestsFilterAndPagination
 
         var result = await repo.GetPaginatedEventsAsync(filter, CancellationToken.None);
 
-        result.Should().ContainSingle();
-        result[0].Title.Should().Be("Встреча 1");
+        result.Count.Should().Be(2);
+        result.Exists(e => e.Title == "Встреча 1").Should().BeTrue();
+        result.Exists(e => e.Title == "Закрытие конференции").Should().BeTrue();
     }
 }

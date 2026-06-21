@@ -46,8 +46,7 @@ public class BookingEntityConfiguration : IEntityTypeConfiguration<BookingEntity
             .OnDelete(DeleteBehavior.Restrict); // Контроль целостности
 
         // Индекс для поиска по статусу и сортировки по дате создания, для метода GetBookingIdsByStatusAsync
-        builder.HasIndex(b => new { b.Status, b.CreatedAt })
-            .IncludeProperties(b => b.Id);
+        builder.HasIndex(b => new { b.Status, b.CreatedAt });
 
         // Комментарии к таблице и колонкам
         builder.ToTable(t => t.HasComment("Таблица бронирований мест на события"));

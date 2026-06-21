@@ -1,0 +1,48 @@
+using EventManagementService.Models;
+
+namespace EventManagementServiceTestsDb.Infrastructure;
+
+public static class TestDataHelper
+{
+    public static EventEntity GetEventEntity(
+        Guid? eventId = null,
+        string title = "Test event",
+        string description = "Test event",
+        DateTime? startAt = null,
+        DateTime? endAt = null,
+        int totalSeats = 5,
+        int availableSeats = 5)
+    {
+        return new EventEntity
+        {
+            Id = eventId ?? Guid.NewGuid(),
+            Title = title,
+            Description = description,
+            StartAt = (startAt ?? DateTime.UtcNow).Date.AddDays(1),
+            EndAt = (endAt ?? DateTime.UtcNow).Date.AddDays(2),
+            TotalSeats = totalSeats,
+            AvailableSeats = availableSeats,
+        };
+    }
+
+    public static List<EventEntity> GetListEventEntity(bool ordered, int count, DateTime? startAt = null, int numSeats = 5)
+    {
+        DateTime date = (startAt ?? DateTime.UtcNow);
+
+        var events = new List<EventEntity>();
+        for (int i = 1; i <= count; i++)
+        {
+            events.Add(new EventEntity
+            {
+                Id = Guid.NewGuid(),
+                Title = $"Событие {i}",
+                StartAt = i == count && !ordered? date.AddDays(-1) : date.AddDays(i),
+                EndAt = date.AddDays(i + 1),
+                TotalSeats = numSeats,
+                AvailableSeats = numSeats,
+            });
+        }
+
+        return events;
+    }
+}

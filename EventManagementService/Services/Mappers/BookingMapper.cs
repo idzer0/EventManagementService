@@ -8,7 +8,7 @@ public static class BookingMapper
         new()
         {
             Id = entity.Id,
-            EventId = entity.Event.Id,
+            EventId = entity.Event?.Id ?? throw new Exception("Связанное событие не должно отсутствовать"),
             Status = entity.Status,
             CreatedAt = entity.CreatedAt,
             ProcessedAt = entity.ProcessedAt,
