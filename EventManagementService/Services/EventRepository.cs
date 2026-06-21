@@ -128,7 +128,7 @@ public class EventRepository : IEventRepository
         // Фильтрация через LINQ
         if (!string.IsNullOrWhiteSpace(filter.Title))
         {
-            query = query.Where(e => e.Title.Contains(filter.Title, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(e => EF.Functions.ILike(e.Title, $"%{filter.Title}%"));
         }
 
         if (filter.From.HasValue)

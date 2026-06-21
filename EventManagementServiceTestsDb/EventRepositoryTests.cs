@@ -122,4 +122,32 @@ public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fix
         countFilter.Should().Be(12);
     }
 
+    [Fact]
+    public async Task SelectTiltleByLike_UseTrgmIndex_ReturnCorrectRows()
+    {
+        // Arrange
+        await ResetDatabaseAsync();
+        await using var context = CreateContext();
+
+        var repo = new EventRepository(context, NullLogger<EventRepository>.Instance);
+        var ev0 = await repo.CreateAsync(TestDataHelper.GetEventEntity(), CancellationToken.None);
+        var ev1 = await repo.CreateAsync(TestDataHelper.GetEventEntity(title: "Фестиваль цветов Ромашка"), CancellationToken.None);
+        var ev2 = await repo.CreateAsync(TestDataHelper.GetEventEntity(title: "Цвет - отражение настроения"), CancellationToken.None);
+        var ev3 = await repo.CreateAsync(TestDataHelper.GetEventEntity(title: "Выставка: Всё в цвет"), CancellationToken.None);
+        var ev4 = await repo.CreateAsync(TestDataHelper.GetEventEntity(), CancellationToken.None);
+
+        var filter = new EventsFilter()
+        {
+            Title = "цвет"
+        };
+
+        // Act
+        var result = await repo.GetPaginatedEventsAsync(filter, CancellationToken.None);
+
+        // Assert
+        result.Count.Should().Be(3);
+        result.Exists(ev => ev.Id == ev1.Id).Should().BeTrue();
+        result.Exists(ev => ev.Id == ev2.Id).Should().BeTrue();
+        result.Exists(ev => ev.Id == ev3.Id).Should().BeTrue();
+    }
 }
