@@ -1,7 +1,8 @@
-using EventManagementService.Contracts;
-using EventManagementService.Infrastructure.DataAccess;
-using EventManagementService.Models;
-using EventManagementService.Services;
+using Application.Contracts;
+using Application.Services;
+using Domain.Models;
+using Infrastructure.DataAccess;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 

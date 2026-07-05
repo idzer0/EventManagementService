@@ -1,6 +1,4 @@
-using EventManagementService.Contracts;
-using EventManagementService.Models;
-using EventManagementService.Services;
+using Domain.Models;
 using EventManagementServiceTestsDb.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

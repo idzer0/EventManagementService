@@ -1,5 +1,5 @@
-using EventManagementService.Contracts;
-using EventManagementService.Models;
+using Application.Contracts;
+using Application.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventManagementService.Controllers;

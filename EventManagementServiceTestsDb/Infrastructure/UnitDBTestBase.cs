@@ -1,7 +1,4 @@
-﻿using EventManagementService.Contracts;
-using EventManagementService.Infrastructure.DataAccess;
-using EventManagementService.Models;
-using EventManagementService.Services;
+﻿using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;

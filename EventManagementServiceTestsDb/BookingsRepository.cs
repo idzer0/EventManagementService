@@ -1,7 +1,7 @@
-using EventManagementService.Models;
-using EventManagementService.Services;
+using Domain.Models;
 using EventManagementServiceTestsDb.Infrastructure;
 using FluentAssertions;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 

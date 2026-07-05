@@ -1,6 +1,5 @@
-using EventManagementService.Contracts;
-using EventManagementService.Models;
-using EventManagementService.Services.Mappers;
+using Application.Contracts;
+using Application.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventManagementService.Controllers;
@@ -39,7 +38,7 @@ public class EventController : ControllerBase
     {
         var ev = await _eventService.GetByIdAsync(id, ct);
 
-        return Ok(EventMapper.MapToResponse(ev));
+        return Ok(ev);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using EventManagementService.Models;
+using Domain.Models;
 
 namespace EventManagementServiceTestsDb.Infrastructure;
 

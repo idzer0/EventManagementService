@@ -1,7 +1,7 @@
-﻿using Castle.Core.Logging;
-using EventManagementService.Contracts;
-using EventManagementService.Models;
-using EventManagementService.Services;
+﻿using Application.Contracts;
+using Application.DTO;
+using Application.Services;
+using Domain.Models;
 using EventManagementServiceTests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
