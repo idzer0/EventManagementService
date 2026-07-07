@@ -18,6 +18,10 @@ public class EventRequest
     [Required(ErrorMessage = "Дата окончания события обязательна к заполнению")]
     public DateTime EndAt { get; set; }
 
+    [Range(0, double.MaxValue)]
+    [Required(ErrorMessage = "Количество мест должно быть больше или равно нулю.")]
+    public int AvailableSeats { get; set; }
+
     [Range(1, double.MaxValue)]
     [Required(ErrorMessage = "Количество мест должно быть больше нуля.")]
     public int TotalSeats { get; set; }

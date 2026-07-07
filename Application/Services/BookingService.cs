@@ -5,7 +5,7 @@ using Domain.DomainExceptions;
 using Domain.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Contracts;
+namespace Application.Services;
 
 /// <summary>
 /// Сервис бронирования.

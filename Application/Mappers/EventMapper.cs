@@ -25,6 +25,7 @@ public static class EventMapper
             Description = ev.Description,
             StartAt = ev.StartAt,
             EndAt = ev.EndAt,
+            AvailableSeats = ev.AvailableSeats,
             TotalSeats = ev.TotalSeats,
         };
 }

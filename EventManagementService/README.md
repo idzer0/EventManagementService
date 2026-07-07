@@ -1,7 +1,7 @@
 # Event Management API
 
 REST API для управления мероприятиями.  
-Реализованы CRUD-операции, хранение в памяти, валидация, Swagger.
+Реализованы CRUD-операции, валидация, Swagger.
 
 ## 📋 О проекте
 
@@ -224,7 +224,7 @@ json
 #### Работа с изменениями схемы данных
 
 Создание изменений схемы данных: 
-  dotnet ef migration add <имя_миграции>
+  dotnet ef migrations add <имя_миграции> --project Infrastructure --startup-project EventManagementService
   
   или через .sql файлы:
     ./create-migration.sh /path/to/project [имя_миграции]
