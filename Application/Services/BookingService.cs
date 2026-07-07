@@ -16,7 +16,6 @@ public class BookingService : IBookingService
     private readonly IBookingRepository _repoBooking;
     private readonly IEventRepository _repoEvents;
     private readonly ILogger<BookingService> _logger;
-    private readonly SemaphoreSlim _bookingSemaphore = new(1,1);
     private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
 
     public BookingService (
@@ -35,8 +34,7 @@ public class BookingService : IBookingService
         var ev = await _repoEvents.GetByIdAsync(eventId, ct)
             ?? throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        // Пытаемся зарезервировать места (уменьшаем AvailableSeats)
-        if (!ev.TryReserveSeats()) // например, если AvailableSeats > 0, то AvailableSeats--
+        if (!ev.TryReserveSeats())
             throw new NoAvailableSeatsDomainException("No available seats for this event");
 
         try
@@ -50,33 +48,8 @@ public class BookingService : IBookingService
             throw new NoAvailableSeatsDomainException("No available seats for this event", ex);
         }
 
-        // Создаём запись о бронировании
         return BookingMapper.MapToResponse(
             await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
-
-        // if(!await _repoEvents.IsExistsAsync(eventId, ct))
-        //     throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
-
-        // await _bookingSemaphore.WaitAsync(ct);
-        // try
-        // {
-        //     var ev = await _repoEvents.GetByIdAsync(eventId, ct);
-
-        //     if (!(ev?.TryReserveSeats() ?? false))
-        //     {
-        //         throw new NoAvailableSeatsDomainException("No available seats for this event");
-        //     }
-        //     else
-        //     {
-        //         await _repoEvents.UpdateAsync(ev, ct);
-        //         return BookingMapper.MapToResponse(
-        //             await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
-        //     }
-        // }
-        // finally
-        // {
-        //     _bookingSemaphore.Release();
-        // }
     }
 
     /// <inheritdoc/>
