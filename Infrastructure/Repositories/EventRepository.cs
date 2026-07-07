@@ -95,6 +95,7 @@ public class EventRepository : IEventRepository
         if (!await IsExistsAsync(updateEventRequest.Id, ct))
             throw new ObjectNotFoundDomainException($"Событие с Id {updateEventRequest.Id} не найдено.");
 
+
         _context.Events.Update(updateEventRequest);
         await _context.SaveChangesAsync(ct);
 

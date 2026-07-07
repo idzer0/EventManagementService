@@ -47,6 +47,12 @@ public class EventEntityConfiguration : IEntityTypeConfiguration<EventEntity>
             .HasDefaultValue(0)
             .HasComment("Количество доступных мест");
 
+        // Указываем, что Xmin маппится на системный столбец xmin
+        builder.Property(e => e.Xmin)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .ValueGeneratedOnAddOrUpdate()
+            .IsConcurrencyToken();
 
         #region Индексы
 

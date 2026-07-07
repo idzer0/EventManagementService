@@ -3,6 +3,7 @@ using Application.DTO;
 using Application.Mappers;
 using Domain.DomainExceptions;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
@@ -31,29 +32,51 @@ public class BookingService : IBookingService
     /// <inheritdoc/>
     public async Task<BookingInfo> CreateBookingAsync(Guid eventId, CancellationToken ct)
     {
-        if(!await _repoEvents.IsExistsAsync(eventId, ct))
-            throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
+        var ev = await _repoEvents.GetByIdAsync(eventId, ct)
+            ?? throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        await _bookingSemaphore.WaitAsync(ct);
+        // Пытаемся зарезервировать места (уменьшаем AvailableSeats)
+        if (!ev.TryReserveSeats()) // например, если AvailableSeats > 0, то AvailableSeats--
+            throw new NoAvailableSeatsDomainException("No available seats for this event");
+
         try
         {
-            var ev = await _repoEvents.GetByIdAsync(eventId, ct);
-
-            if (!(ev?.TryReserveSeats() ?? false))
-            {
-                throw new NoAvailableSeatsDomainException("No available seats for this event");
-            }
-            else
-            {
-                await _repoEvents.UpdateAsync(ev, ct);
-                return BookingMapper.MapToResponse(
-                    await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
-            }
+            // Сохраняем изменения – EF сгенерирует UPDATE с условием WHERE Id = ... AND xmin = @oldXmin
+            await _repoEvents.UpdateAsync(ev, ct);
         }
-        finally
+        catch (DbUpdateConcurrencyException ex)
         {
-            _bookingSemaphore.Release();
+            // Кто-то уже изменил эту строку (другой параллельный запрос)
+            throw new NoAvailableSeatsDomainException("No available seats for this event", ex);
         }
+
+        // Создаём запись о бронировании
+        return BookingMapper.MapToResponse(
+            await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
+
+        // if(!await _repoEvents.IsExistsAsync(eventId, ct))
+        //     throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
+
+        // await _bookingSemaphore.WaitAsync(ct);
+        // try
+        // {
+        //     var ev = await _repoEvents.GetByIdAsync(eventId, ct);
+
+        //     if (!(ev?.TryReserveSeats() ?? false))
+        //     {
+        //         throw new NoAvailableSeatsDomainException("No available seats for this event");
+        //     }
+        //     else
+        //     {
+        //         await _repoEvents.UpdateAsync(ev, ct);
+        //         return BookingMapper.MapToResponse(
+        //             await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
+        //     }
+        // }
+        // finally
+        // {
+        //     _bookingSemaphore.Release();
+        // }
     }
 
     /// <inheritdoc/>

@@ -27,6 +27,9 @@ public class EventEntity
     [Required]
     public int AvailableSeats { get; set; }
 
+    // Свойство для оптимистической блокировки (маппится на xmin)
+    public uint Xmin { get; set; }
+
     // Навигационное свойство
     public virtual ICollection<BookingEntity> Bookings { get; set; } = [];
 

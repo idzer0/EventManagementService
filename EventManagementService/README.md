@@ -230,7 +230,7 @@ json
     ./create-migration.sh /path/to/project [имя_миграции]
 
 Применение изменений к базе данных:
-  dotnet ef database update
+  dotnet ef database update --project Infrastructure --startup-project EventManagementService
 
   или через .sql файлы:
   ./apply-migration-sql.sh /path/to/project [имя_миграции]
