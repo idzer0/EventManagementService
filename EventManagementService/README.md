@@ -1,7 +1,7 @@
 # Event Management API
 
 REST API для управления мероприятиями.  
-Реализованы CRUD-операции, хранение в памяти, валидация, Swagger.
+Реализованы CRUD-операции, валидация, Swagger.
 
 ## 📋 О проекте
 
@@ -36,6 +36,35 @@ REST API сервис, позволяющий:
 
 5. Открыть Swagger UI:
 http://localhost:5244/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
+
+## Структура решения
+
+Решение содержит проекты:
+Domain
+  Содержит:  
+  - доменные сущности и перечисления;
+  - доменные исключения.
+
+Application
+  Содержит:  
+  - интерфейсы сервисов и их реализации (use cases);
+  - интерфейсы портов — абстракции для доступа к данным (репозитории) и внешним сервисам;
+  - DTO (объекты передачи данных между слоями);
+  - фоновые сервисы.
+
+Infrastructure
+  Содержит:  
+  - реализации интерфейсов репозиториев с использованием DbContext;
+  - сам DbContext, конфигурации маппинга сущностей, миграции.
+
+EventManagementService 
+  Выполняет роль Presentation. Содержит контроллеры и обработчик глобальных исключений с маппингом доменных исключений в HTTP-статусы. 
+
+EventManagementServiceTests
+  Содержит юнит тесты и интеграционные тесты с использованием In-Memory
+
+EventManagementServiceTestsDb
+  Содержит интеграционные тесты с использованием PgSql by Testconteiners
 
 ## Тестирование
 
@@ -195,13 +224,13 @@ json
 #### Работа с изменениями схемы данных
 
 Создание изменений схемы данных: 
-  dotnet ef migration add <имя_миграции>
+  dotnet ef migrations add <имя_миграции> --project Infrastructure --startup-project EventManagementService
   
   или через .sql файлы:
     ./create-migration.sh /path/to/project [имя_миграции]
 
 Применение изменений к базе данных:
-  dotnet ef database update
+  dotnet ef database update --project Infrastructure --startup-project EventManagementService
 
   или через .sql файлы:
   ./apply-migration-sql.sh /path/to/project [имя_миграции]

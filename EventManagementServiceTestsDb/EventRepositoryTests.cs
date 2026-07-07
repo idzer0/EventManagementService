@@ -1,7 +1,8 @@
-using EventManagementService.Models;
-using EventManagementService.Services;
+using Application.DTO;
+using Domain.Models;
 using EventManagementServiceTestsDb.Infrastructure;
 using FluentAssertions;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -41,7 +42,7 @@ public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fix
 
         await ResetDatabaseAsync();
         await using var context = CreateContext();
-        await context.Events.AddRangeAsync(events);
+        await context.Events.AddRangeAsync((IEnumerable<EventEntity>)events);
         await context.SaveChangesAsync();
 
         var repo = new EventRepository(context, NullLogger<EventRepository>.Instance);
@@ -107,8 +108,8 @@ public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fix
 
         await ResetDatabaseAsync();
         await using var context = CreateContext();
-        await context.Events.AddRangeAsync(events1);
-        await context.Events.AddRangeAsync(events2);
+        await context.Events.AddRangeAsync((IEnumerable<EventEntity>)events1);
+        await context.Events.AddRangeAsync((IEnumerable<EventEntity>)events2);
         await context.SaveChangesAsync();
 
         var repo = new EventRepository(context, NullLogger<EventRepository>.Instance);

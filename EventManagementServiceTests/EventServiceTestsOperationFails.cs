@@ -1,8 +1,8 @@
-﻿using Castle.Core.Logging;
-using EventManagementService.Contracts;
-using EventManagementService.DomainExceptions;
-using EventManagementService.Models;
-using EventManagementService.Services;
+﻿using Application.Contracts;
+using Application.DTO;
+using Application.Services;
+using Domain.DomainExceptions;
+using Domain.Models;
 using EventManagementServiceTests.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Controllers;

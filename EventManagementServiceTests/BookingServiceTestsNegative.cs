@@ -1,8 +1,5 @@
-using EventManagementService.Contracts;
-using EventManagementService.DomainExceptions;
-using EventManagementService.Models;
-using EventManagementService.Services;
-using EventManagementService.ServicesBackground;
+using Domain.DomainExceptions;
+using Domain.Models;
 using EventManagementServiceTests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
