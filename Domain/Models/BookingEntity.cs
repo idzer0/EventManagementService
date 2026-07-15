@@ -33,8 +33,14 @@ public class BookingEntity
     /// </summary>
     public DateTimeOffset? ProcessedAt { get; set; }
 
-    // Навигационное свойство.
+    /// <summary>
+    /// Идентификатор пользователя.
+    /// </summary>
+    public int UserId { get; set; }
+
+    // Навигационные свойства.
     public virtual EventEntity? Event { get; set; }
+    public virtual UserEntity? User { get; set; }
 
     /// <summary>
     /// Подтверждение брони.

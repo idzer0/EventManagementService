@@ -1,5 +1,6 @@
 using Application.Contracts;
 using Application.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventManagementService.Controllers;
@@ -8,6 +9,7 @@ namespace EventManagementService.Controllers;
 /// Контроллер бронирований.
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("bookings")]
 public class BookingController : ControllerBase
 {

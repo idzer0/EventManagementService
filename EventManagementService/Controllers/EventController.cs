@@ -1,5 +1,6 @@
 using Application.Contracts;
 using Application.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventManagementService.Controllers;
@@ -8,6 +9,7 @@ namespace EventManagementService.Controllers;
 /// Контроллер обработки событий
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("events")]
 public class EventController : ControllerBase
 {
@@ -74,6 +76,7 @@ public class EventController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         await _eventService.DeleteAsync(id, ct);
