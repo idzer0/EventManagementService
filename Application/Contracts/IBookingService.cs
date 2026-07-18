@@ -1,5 +1,5 @@
-using Domain.Models;
 using Application.DTO;
+using Domain.Models;
 
 namespace Application.Contracts;
 
@@ -26,7 +26,12 @@ public interface IBookingService
     Task ProcessPendingBookingAsync(Guid bookingId, CancellationToken ct);
 
     /// <summary>
-    /// Отмена брони
+    /// Отклонить бронь
     /// </summary>
     Task RejectAsync(Guid bookingId, CancellationToken ct);
+
+    /// <summary>
+    /// Отмена брони
+    /// </summary>
+    Task CancelAsync(Guid bookingId, CancellationToken ct);
 }

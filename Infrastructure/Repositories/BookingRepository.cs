@@ -1,7 +1,8 @@
 using System.Collections;
 using Application.Contracts;
-using Infrastructure.DataAccess;
+using Domain.DomainExceptions;
 using Domain.Models;
+using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -14,23 +15,29 @@ public class BookingRepository : IBookingRepository
 {
     private readonly AppDbContext _context;
     private readonly ILogger<BookingRepository> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public BookingRepository (AppDbContext context, ILogger<BookingRepository> logger)
+    public BookingRepository (AppDbContext context, ICurrentUserService currentUserService, ILogger<BookingRepository> logger)
     {
         _context = context;
+        _currentUserService = currentUserService;
         _logger = logger;
     }
 
     /// <inheritdoc/>
     public async Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTimeOffset createdAt, CancellationToken ct)
     {
+        if (!_currentUserService.IsAllowUserOperation())
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
         BookingEntity booking = new()
-            {
-                Id = Guid.NewGuid(),
-                EventId = evendId,
-                Status = status,
-                CreatedAt = createdAt
-            };
+        {
+            Id = Guid.NewGuid(),
+            EventId = evendId,
+            Status = status,
+            CreatedAt = createdAt,
+            UserId = _currentUserService.UserId.Value,
+        };
 
         await _context.Bookings.AddAsync(booking, ct);
         await _context.SaveChangesAsync(ct);
@@ -41,7 +48,12 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public Task<BookingEntity?> GetBookingByIdAsync(Guid bookingId, CancellationToken ct)
     {
-        return _context.Bookings.SingleOrDefaultAsync(b => b.Id == bookingId, ct);
+        if (!_currentUserService.IsAllowUserOperation())
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        return _currentUserService.IsAllowAdminOperation() ?
+            _context.Bookings.SingleOrDefaultAsync(b => b.Id == bookingId, ct) :
+            _context.Bookings.SingleOrDefaultAsync(b => b.Id == bookingId && b.UserId == _currentUserService.UserId.Value, ct);
     }
 
     /// <inheritdoc/>
@@ -58,6 +70,9 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public async Task UpdateBookingAsync(BookingEntity entity, CancellationToken ct)
     {
+        if (!_currentUserService.IsAllowUserOperation())
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
         _context.Bookings.Update(entity);
         await _context.SaveChangesAsync(ct);
     }

@@ -1,3 +1,7 @@
+using Application.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
 namespace EventManagementService.DiContext.Presentation;
 
 public static class DependencyInjection
@@ -11,6 +15,13 @@ public static class DependencyInjection
 
         // Контроллеры
         services.AddControllers();
+
+        // Добавляем автоматическую валидацию и клиентские адаптеры (опционально)
+        // services.AddFluentValidationAutoValidation()
+        //         .AddFluentValidationClientsideAdapters();
+
+        // Регистрируем все валидаторы из сборки (где находится RequestValidator)
+        services.AddValidatorsFromAssemblyContaining<RequestValidator>();
 
         // Swagger
         services.AddSwaggerGen();

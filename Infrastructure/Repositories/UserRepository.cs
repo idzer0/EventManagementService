@@ -23,13 +23,13 @@ public class UserRepository : IUserRepository
         return _context.Users.AnyAsync(u => u.Login == login.ToLower(), ct);
     }
 
-
     ///<inheritdoc>
     public async Task CreateUserAsync(UserEntity user, CancellationToken ct)
     {
         try
         {
             await _context.AddAsync(user, ct);
+            await _context.SaveChangesAsync(ct);
         }
         catch (Exception ex)
         {

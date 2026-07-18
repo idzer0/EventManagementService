@@ -101,9 +101,9 @@ public class ExceptionHandlerMiddleware
             ValidationDomainException vde => StatusCodes.Status400BadRequest,
             ObjectNotFoundDomainException onfe => StatusCodes.Status404NotFound,
             ValidationException ve => StatusCodes.Status400BadRequest,
+            UnauthorizedAccessDomainException authe => StatusCodes.Status403Forbidden,
             KeyNotFoundException nfe => StatusCodes.Status404NotFound,
             NoAvailableSeatsDomainException nasde => StatusCodes.Status409Conflict,
-            AuthenticationException authe => StatusCodes.Status203NonAuthoritative,
             _ => StatusCodes.Status500InternalServerError
         };
 
@@ -116,6 +116,7 @@ public class ExceptionHandlerMiddleware
             : statusCode switch
             {
                 StatusCodes.Status400BadRequest => "Некорректный запрос",
+                StatusCodes.Status403Forbidden => "Недостаточно прав",
                 StatusCodes.Status404NotFound => "Ресурс не найден",
                 StatusCodes.Status409Conflict => "Конфликт при обработке данных",
                 StatusCodes.Status500InternalServerError => "Внутренняя ошибка сервера",

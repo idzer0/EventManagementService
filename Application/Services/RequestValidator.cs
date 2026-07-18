@@ -23,9 +23,9 @@ public class RequestValidator : AbstractValidator<UserLoginRequest>
             .WithMessage("Пользователь с таким именем уже существует")
             .Must((_, login) => LoginRegex.IsMatch(login))
             .WithMessage("Разрешены только латинские буквы, цифры, _, -, .")
-            .Must((_, login) => ReservedLogins.Contains(login))
+            .Must((_, login) => !ReservedLogins.Contains(login))
             .WithMessage("Это имя зарезервировано системой")
-            .Must((_, login) => login[0] == '.' || login[0] == '_' || login[0] == '-')
+            .Must((_, login) => !(login[0] == '.' || login[0] == '_' || login[0] == '-'))
             .WithMessage("Имя пользователя не может начинаться с . _ -");
 
 

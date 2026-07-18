@@ -5,6 +5,7 @@ using Infrastructure.DataAccess;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 
 namespace EventManagementServiceTests.Infrastructure;
 
@@ -31,7 +32,15 @@ public class DbContextMocker()
     public IBookingRepository ArrangeBookingRepositoryTestCase(AppDbContext dbContext, List<BookingEntity> items)
     {
         AddItemsToDbContext(dbContext, items);
-        return new BookingRepository(dbContext, NullLogger<BookingRepository>.Instance);
+
+        Mock<ICurrentUserService> currentUserService = new();
+        currentUserService.Setup(service => service.UserId).Returns(1);
+        currentUserService.Setup(service => service.Role).Returns((int)UsersRole.User);
+
+        return new BookingRepository(
+            dbContext,
+            currentUserService.Object,
+            NullLogger<BookingRepository>.Instance);
     }
 
     public IEventService ArrangeEventServiceTestCase(
@@ -52,9 +61,20 @@ public class DbContextMocker()
     {
         AddItemsToDbContext(dbContext, bookings);
 
-        IBookingRepository repoBookings =  new BookingRepository(dbContext, NullLogger<BookingRepository>.Instance);
+        Mock<ICurrentUserService> currentUserService = new();
+        currentUserService.Setup(service => service.UserId).Returns(1);
+        currentUserService.Setup(service => service.Role).Returns((int)UsersRole.User);
 
-        return new BookingService(repoBookings, eventRepository, NullLogger<BookingService>.Instance);
+        IBookingRepository repoBookings = new BookingRepository(
+            dbContext,
+            currentUserService.Object,
+            NullLogger<BookingRepository>.Instance);
+
+        return new BookingService(
+            repoBookings,
+            eventRepository,
+            currentUserService.Object,
+            NullLogger<BookingService>.Instance);
     }
 
 

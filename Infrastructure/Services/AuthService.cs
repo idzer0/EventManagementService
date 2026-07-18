@@ -6,7 +6,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using static System.Security.Claims.ClaimTypes;
 
-namespace Application.Services;
+namespace Infrastructure.Services;
 
 public class AuthService(
     IJwtTokenGenerator jwtTokenGenerator,
@@ -30,7 +30,7 @@ public class AuthService(
     {
         UserEntity newUser = new()
         {
-            Login = login,
+            Login = login.ToLower(),
             PasswordHash = passwordHasher.GetHashPassword(password),
             Role = role,
         };

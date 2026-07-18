@@ -136,21 +136,36 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Login")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasComment("Логин пользователя");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasComment("Хеш пароля пользователя");
 
                     b.Property<int>("Role")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Идентификатор роли пользователя");
 
-                    b.Property<long>("Xmin")
-                        .HasColumnType("bigint");
+                    b.Property<uint>("Xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserEntity", "public");
+                    b.HasIndex("Login")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Users_Login");
+
+                    b.ToTable("Users", "public", t =>
+                        {
+                            t.HasComment("Таблица пользователей");
+                        });
                 });
 
             modelBuilder.Entity("Domain.Models.BookingEntity", b =>
@@ -164,7 +179,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Models.UserEntity", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Event");
