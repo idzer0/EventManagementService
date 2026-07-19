@@ -19,7 +19,7 @@ public class AuthService(
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, login),
-            new Claim(ClaimTypes.Role, nameof(role)),
+            new Claim(ClaimTypes.Role, role.ToString()),
         };
 
         return jwtTokenGenerator.GenerateToken(claims, DateTime.UtcNow.AddHours(1));

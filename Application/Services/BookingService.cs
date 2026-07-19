@@ -37,7 +37,7 @@ public class BookingService : IBookingService
         var ev = await _repoEvents.GetByIdAsync(eventId, ct)
             ?? throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        if (ev.EndAt >= DateTime.UtcNow)
+        if (ev.EndAt < DateTime.UtcNow)
             throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
         if (!ev.TryReserveSeats())

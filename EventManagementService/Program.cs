@@ -14,9 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
-builder.Services.AddPresentation();
-builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuth(builder.Configuration);
+builder.Services.AddPresentation();
 
 // Включаем валидацию только в Development
 if (builder.Environment.IsDevelopment())

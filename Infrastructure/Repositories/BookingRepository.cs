@@ -27,7 +27,7 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public async Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTimeOffset createdAt, CancellationToken ct)
     {
-        if (!_currentUserService.IsAllowUserOperation())
+        if (!_currentUserService.IsAllowUserOperation(_currentUserService.UserId))
             throw new UnauthorizedAccessDomainException("Недостаточно прав");
 
         BookingEntity booking = new()
@@ -48,7 +48,7 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public Task<BookingEntity?> GetBookingByIdAsync(Guid bookingId, CancellationToken ct)
     {
-        if (!_currentUserService.IsAllowUserOperation())
+        if (!_currentUserService.IsAllowUserOperation(_currentUserService.UserId))
             throw new UnauthorizedAccessDomainException("Недостаточно прав");
 
         return _currentUserService.IsAllowAdminOperation() ?
@@ -70,7 +70,7 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public async Task UpdateBookingAsync(BookingEntity entity, CancellationToken ct)
     {
-        if (!_currentUserService.IsAllowUserOperation())
+        if (!_currentUserService.IsAllowUserOperation(entity.UserId))
             throw new UnauthorizedAccessDomainException("Недостаточно прав");
 
         _context.Bookings.Update(entity);

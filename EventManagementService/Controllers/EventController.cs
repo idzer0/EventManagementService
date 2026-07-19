@@ -49,7 +49,7 @@ public class EventController : ControllerBase
     /// Создать событие
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = nameof(UsersRole.Admin))]
+    [Authorize(Roles = nameof(UsersRole.Admin))] //(Roles = nameof(UsersRole.Admin))
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

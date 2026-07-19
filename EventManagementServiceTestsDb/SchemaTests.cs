@@ -21,12 +21,14 @@ public class SchemaTests (PostgresFixture fixture) : UnitDBTestBase(fixture)
         await using var connection = context.Database.GetDbConnection();
         await connection.OpenAsync();
 
+        await using var commandUsersTable = connection.CreateCommand();
         await using var commandEventsTable = connection.CreateCommand();
         await using var commandBoonikgsTable = connection.CreateCommand();
         await using var commandTrgmExtExist = connection.CreateCommand();
         await using var commandTrgmIndexExist = connection.CreateCommand();
 
         // Act
+        commandUsersTable.CommandText = "SELECT to_regclass('public.\"Users\"') IS NOT NULL";
         commandBoonikgsTable.CommandText = "SELECT to_regclass('public.\"Bookings\"') IS NOT NULL";
         commandEventsTable.CommandText = "SELECT to_regclass('public.\"Events\"') IS NOT NULL";
         commandTrgmExtExist.CommandText = "SELECT true FROM pg_extension WHERE extname = 'pg_trgm';";
@@ -46,6 +48,7 @@ public class SchemaTests (PostgresFixture fixture) : UnitDBTestBase(fixture)
             AND opc.opcname IN ('gist_trgm_ops', 'gin_trgm_ops');";
 
         // Assert
+        Assert.True((bool)(await commandUsersTable.ExecuteScalarAsync())!);
         Assert.True((bool)(await commandBoonikgsTable.ExecuteScalarAsync())!);
         Assert.True((bool)(await commandEventsTable.ExecuteScalarAsync())!);
         Assert.True((bool)(await commandTrgmExtExist.ExecuteScalarAsync())!);

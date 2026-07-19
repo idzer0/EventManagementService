@@ -75,6 +75,12 @@ public static class TestDataHelper
         Mock<ICurrentUserService> cus = new();
         cus.Setup(c => c.UserId).Returns(userId);
         cus.Setup(c => c.Role).Returns(role);
+        cus.Setup(c => c.IsAllowUserOperation(userId)).Returns(true);
+
+        if (role == (int?)UsersRole.Admin)
+        {
+            cus.Setup(c => c.IsAllowAdminOperation()).Returns(true);
+        }
 
         return cus.Object;
     }

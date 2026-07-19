@@ -36,6 +36,7 @@ public class DbContextMocker()
         Mock<ICurrentUserService> currentUserService = new();
         currentUserService.Setup(service => service.UserId).Returns(1);
         currentUserService.Setup(service => service.Role).Returns((int)UsersRole.User);
+        currentUserService.Setup(service => service.IsAllowUserOperation(1)).Returns(true);
 
         return new BookingRepository(
             dbContext,
@@ -64,6 +65,7 @@ public class DbContextMocker()
         Mock<ICurrentUserService> currentUserService = new();
         currentUserService.Setup(service => service.UserId).Returns(1);
         currentUserService.Setup(service => service.Role).Returns((int)UsersRole.User);
+        currentUserService.Setup(service => service.IsAllowUserOperation(1)).Returns(true);
 
         IBookingRepository repoBookings = new BookingRepository(
             dbContext,

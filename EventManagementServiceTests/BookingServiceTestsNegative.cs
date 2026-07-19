@@ -85,8 +85,8 @@ public class BookingServiceFailTests
             Id = eventId,
             Title = "Test event",
             Description = "Test event",
-            StartAt = DateTime.Now.Date.AddDays(1),
-            EndAt = DateTime.Now.Date.AddDays(2),
+            StartAt = DateTime.UtcNow.Date.AddDays(1),
+            EndAt = DateTime.UtcNow.Date.AddDays(2),
             TotalSeats = 100,
             AvailableSeats = 0,
         };
