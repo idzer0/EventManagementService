@@ -14,10 +14,11 @@ public class AuthService(
     IPasswordHasher passwordHasher) : IAuthService
 {
 
-    private string GenerateToken(string login, UsersRole role)
+    private string GenerateToken(int userId, string login, UsersRole role)
     {
         var claims = new[]
         {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Name, login),
             new Claim(ClaimTypes.Role, role.ToString()),
         };
@@ -46,6 +47,6 @@ public class AuthService(
         if (user is null || user.PasswordHash != passwordHasher.GetHashPassword(password))
             throw new AuthenticationException("Неверный логин или пароль");
 
-        return GenerateToken(login, user.Role);
+        return GenerateToken(user.Id, login, user.Role);
     }
 }

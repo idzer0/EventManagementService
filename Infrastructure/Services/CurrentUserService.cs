@@ -20,13 +20,13 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
         }
     }
 
-    public int? Role
+    public UsersRole? Role
     {
         get
         {
-            var role = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role);
-            if (role != null && int.TryParse(role.Value, out var id))
-                return id;
+            var roleClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role);
+            if (roleClaim != null && Enum.TryParse<UsersRole>(roleClaim.Value, out var role))
+                return role;
             return null;
         }
     }
@@ -38,12 +38,12 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     /// <inheritdoc/>
     public bool IsAllowUserOperation(int? userId = default)
     {
-        return UserId is not null && (UserId == (userId ?? UserId) || Role == (int)UsersRole.Admin);
+        return UserId is not null && (UserId == (userId ?? UserId) || Role == UsersRole.Admin);
     }
 
     /// <inheritdoc/>
     public bool IsAllowAdminOperation()
     {
-        return UserId is not null && Role == (int)UsersRole.Admin;
+        return UserId is not null && Role == UsersRole.Admin;
     }
 }

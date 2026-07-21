@@ -34,4 +34,9 @@ public interface IBookingService
     /// Отмена брони
     /// </summary>
     Task CancelAsync(Guid bookingId, CancellationToken ct);
+
+    /// <summary>
+    /// Удалить бронирование.
+    /// </summary>
+    Task DeleteBookingAsync(Guid bookingId, CancellationToken ct);
 }

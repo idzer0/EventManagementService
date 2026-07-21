@@ -1,4 +1,6 @@
 using Application.Contracts;
+using Application.Services;
+using Domain.DomainExceptions;
 using Domain.Models;
 using EventManagementServiceTestsDb.Infrastructure;
 using FluentAssertions;
@@ -58,7 +60,7 @@ public class BookingsTableTests(PostgresFixture fixture) : UnitDBTestBase(fixtur
     [Fact]
     public async Task CreateAndUpdateAsync_ReturnUpdated()
     {
-        var currentUserService = TestDataHelper.GetCurrentUserService(1, (int)UsersRole.User);
+        var currentUserService = TestDataHelper.GetCurrentUserService(1, UsersRole.User);
 
         var evt = TestDataHelper.GetEventEntity(totalSeats: 100, availableSeats: 100);
 
@@ -87,4 +89,67 @@ public class BookingsTableTests(PostgresFixture fixture) : UnitDBTestBase(fixtur
         result?.Status.Should().Be(BookingStatusEnum.Rejected);
     }
 
+    [Fact]
+    public async Task CreateBookingAsync_CheckBookingLimit_NoAvailableSeatsDomainException()
+    {
+        // Arrange
+        var currentUserService = TestDataHelper.GetCurrentUserService(1, UsersRole.User);
+
+        var evt = TestDataHelper.GetEventEntity(totalSeats: 100, availableSeats: 100);
+        await ResetDatabaseAsync();
+        await using var context = CreateContext();
+
+        await context.Users.AddAsync(TestDataHelper.GetTestUser());
+        await context.Events.AddAsync(evt);
+        await context.SaveChangesAsync();
+
+        var repoBooking = new BookingRepository(context, currentUserService, NullLogger<BookingRepository>.Instance);
+        var repoEvent = new EventRepository(context, NullLogger<EventRepository>.Instance);
+
+        var srv = new BookingService(repoBooking, repoEvent, currentUserService, NullLogger<BookingService>.Instance);
+
+
+        for (int i = 0; i < 10; i++)
+            await srv.CreateBookingAsync(evt.Id, CancellationToken.None);
+
+        // Act
+        Func<Task> act = async () => await srv.CreateBookingAsync(evt.Id, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<NoAvailableSeatsDomainException>()
+            .WithMessage("Бронь не может быть создана.");
+    }
+
+    [Fact]
+    public async Task CreateBookingAsync_CancelOtherBooking_NoAuth()
+    {
+        // Arrange
+        var currentUserService1 = TestDataHelper.GetCurrentUserService(1, UsersRole.User);
+        var currentUserService2 = TestDataHelper.GetCurrentUserService(2, UsersRole.User);
+
+        var evt = TestDataHelper.GetEventEntity(totalSeats: 100, availableSeats: 100);
+        await ResetDatabaseAsync();
+        await using var context = CreateContext();
+
+        await context.Users.AddAsync(TestDataHelper.GetTestUser());
+        await context.Events.AddAsync(evt);
+        await context.SaveChangesAsync();
+
+        var repoBooking1 = new BookingRepository(context, currentUserService1, NullLogger<BookingRepository>.Instance);
+        var repoBooking2 = new BookingRepository(context, currentUserService2, NullLogger<BookingRepository>.Instance);
+        var repoEvent = new EventRepository(context, NullLogger<EventRepository>.Instance);
+
+        var srv1 = new BookingService(repoBooking1, repoEvent, currentUserService1, NullLogger<BookingService>.Instance);
+        var srv2 = new BookingService(repoBooking2, repoEvent, currentUserService2, NullLogger<BookingService>.Instance);
+
+
+        var book = await srv1.CreateBookingAsync(evt.Id, CancellationToken.None);
+
+        // Act
+        Func<Task> act = async () => await srv2.CancelAsync(book.Id, CancellationToken.None);
+
+        // Assert
+        await act.Should().ThrowAsync<UnauthorizedAccessDomainException>()
+            .WithMessage("Недостаточно прав");
+    }
 }

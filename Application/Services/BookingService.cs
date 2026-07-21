@@ -37,11 +37,14 @@ public class BookingService : IBookingService
         var ev = await _repoEvents.GetByIdAsync(eventId, ct)
             ?? throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        if (ev.EndAt < DateTime.UtcNow)
-            throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
+        if (ev.StartAt < DateTime.UtcNow)
+            throw new ValidationDomainException("Бронь не может быть создана.");
 
         if (!ev.TryReserveSeats())
             throw new NoAvailableSeatsDomainException("No available seats for this event");
+
+        if (await _repoBooking.GetActiveBookingsAsync(ct) >= 10)
+            throw new NoAvailableSeatsDomainException("Бронь не может быть создана.");
 
         try
         {
@@ -140,6 +143,23 @@ public class BookingService : IBookingService
 
         await BookingCancelAsync(ev, booking, ct);
     }
+
+    /// <inheritdoc/>
+    public async Task DeleteBookingAsync(Guid bookingId, CancellationToken ct)
+    {
+        var booking = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
+            ?? throw new ObjectNotFoundDomainException($"Бронь с Id {bookingId} не найдена.");
+
+        if(!_currentUserService.IsAllowUserOperation(booking.UserId))
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        EventEntity? ev = await _repoEvents.GetByIdAsync(booking.EventId, ct);
+
+        await BookingCancelAsync(ev, booking, ct);
+
+        await _repoBooking.DeleteBookingAsync(booking, ct);
+    }
+
 
     private async Task BookingRejectAsync(EventEntity? ev, BookingEntity booking, CancellationToken ct)
     {

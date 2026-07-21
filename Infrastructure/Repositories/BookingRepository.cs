@@ -48,12 +48,7 @@ public class BookingRepository : IBookingRepository
     /// <inheritdoc/>
     public Task<BookingEntity?> GetBookingByIdAsync(Guid bookingId, CancellationToken ct)
     {
-        if (!_currentUserService.IsAllowUserOperation(_currentUserService.UserId))
-            throw new UnauthorizedAccessDomainException("Недостаточно прав");
-
-        return _currentUserService.IsAllowAdminOperation() ?
-            _context.Bookings.SingleOrDefaultAsync(b => b.Id == bookingId, ct) :
-            _context.Bookings.SingleOrDefaultAsync(b => b.Id == bookingId && b.UserId == _currentUserService.UserId.Value, ct);
+        return _context.Bookings.SingleOrDefaultAsync(b => b.Id == bookingId, ct);
     }
 
     /// <inheritdoc/>
@@ -76,4 +71,29 @@ public class BookingRepository : IBookingRepository
         _context.Bookings.Update(entity);
         await _context.SaveChangesAsync(ct);
     }
+
+    /// <inheritdoc/>
+    public async Task DeleteBookingAsync(BookingEntity entity, CancellationToken ct)
+    {
+        if (!_currentUserService.IsAllowUserOperation(entity.UserId))
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        _context.Bookings.Remove(entity);
+        await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<int> GetActiveBookingsAsync(CancellationToken ct)
+    {
+        int? userId = _currentUserService.UserId;
+
+        if (!_currentUserService.IsAllowUserOperation(userId))
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        return await _context.Bookings
+            .CountAsync(b => (b.Status == BookingStatusEnum.Confirmed || b.Status == BookingStatusEnum.Pending)
+                            && b.UserId == userId, ct);
+
+    }
+
+
 }

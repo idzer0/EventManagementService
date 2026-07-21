@@ -1,11 +1,12 @@
 using System.Security.Claims;
+using Domain.Models;
 
 namespace Application.Contracts;
 
 public interface ICurrentUserService
 {
     int? UserId { get; }
-    int? Role { get; }
+    UsersRole? Role { get; }
     string UserName { get; }
     bool IsAuthenticated { get; }
     IEnumerable<Claim> Claims { get; }

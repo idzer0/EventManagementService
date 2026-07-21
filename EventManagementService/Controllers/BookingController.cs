@@ -33,4 +33,32 @@ public class BookingController : ControllerBase
 
         return Ok(booking);
     }
+
+    /// <summary>
+    /// Отмена брони
+    /// </summary>
+    [HttpPost("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> CancelAsync(Guid id, CancellationToken ct)
+    {
+        await _service.CancelAsync(id, ct);
+
+        return Ok();
+    }
+
+    /// <summary>
+    /// Удалить бронирование.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteBookingAsync(Guid id, CancellationToken ct)
+    {
+        await _service.DeleteBookingAsync(id, ct);
+
+        return Ok();
+    }
 }
