@@ -15,17 +15,19 @@ public class BookingService : IBookingService
 {
     private readonly IBookingRepository _repoBooking;
     private readonly IEventRepository _repoEvents;
+    private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<BookingService> _logger;
-    private readonly SemaphoreSlim _bookingSemaphore = new(1,1);
     private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
 
     public BookingService (
         IBookingRepository repoBooking,
         IEventRepository repoEvents,
+        ICurrentUserService currentUserService,
         ILogger<BookingService> logger)
     {
         _repoBooking = repoBooking;
         _repoEvents = repoEvents;
+        _currentUserService = currentUserService;
         _logger = logger;
     }
 
@@ -35,9 +37,14 @@ public class BookingService : IBookingService
         var ev = await _repoEvents.GetByIdAsync(eventId, ct)
             ?? throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
 
-        // Пытаемся зарезервировать места (уменьшаем AvailableSeats)
-        if (!ev.TryReserveSeats()) // например, если AvailableSeats > 0, то AvailableSeats--
+        if (ev.StartAt < DateTime.UtcNow)
+            throw new ValidationDomainException("Бронь не может быть создана.");
+
+        if (!ev.TryReserveSeats())
             throw new NoAvailableSeatsDomainException("No available seats for this event");
+
+        if (await _repoBooking.GetActiveBookingsAsync(ct) >= 10)
+            throw new NoAvailableSeatsDomainException("Бронь не может быть создана.");
 
         try
         {
@@ -50,33 +57,8 @@ public class BookingService : IBookingService
             throw new NoAvailableSeatsDomainException("No available seats for this event", ex);
         }
 
-        // Создаём запись о бронировании
         return BookingMapper.MapToResponse(
             await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
-
-        // if(!await _repoEvents.IsExistsAsync(eventId, ct))
-        //     throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
-
-        // await _bookingSemaphore.WaitAsync(ct);
-        // try
-        // {
-        //     var ev = await _repoEvents.GetByIdAsync(eventId, ct);
-
-        //     if (!(ev?.TryReserveSeats() ?? false))
-        //     {
-        //         throw new NoAvailableSeatsDomainException("No available seats for this event");
-        //     }
-        //     else
-        //     {
-        //         await _repoEvents.UpdateAsync(ev, ct);
-        //         return BookingMapper.MapToResponse(
-        //             await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
-        //     }
-        // }
-        // finally
-        // {
-        //     _bookingSemaphore.Release();
-        // }
     }
 
     /// <inheritdoc/>
@@ -147,12 +129,73 @@ public class BookingService : IBookingService
         await BookingRejectAsync(ev, booking, ct);
     }
 
+
+    /// <inheritdoc/>
+    public async Task CancelAsync(Guid bookingId, CancellationToken ct)
+    {
+        var booking = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
+            ?? throw new ObjectNotFoundDomainException($"Бронь с Id {bookingId} не найдена.");
+
+        if(!_currentUserService.IsAllowUserOperation(booking.UserId))
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        EventEntity? ev = await _repoEvents.GetByIdAsync(booking.EventId, ct);
+
+        await BookingCancelAsync(ev, booking, ct);
+    }
+
+    /// <inheritdoc/>
+    public async Task DeleteBookingAsync(Guid bookingId, CancellationToken ct)
+    {
+        var booking = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
+            ?? throw new ObjectNotFoundDomainException($"Бронь с Id {bookingId} не найдена.");
+
+        if(!_currentUserService.IsAllowUserOperation(booking.UserId))
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        EventEntity? ev = await _repoEvents.GetByIdAsync(booking.EventId, ct);
+
+        await BookingCancelAsync(ev, booking, ct);
+
+        await _repoBooking.DeleteBookingAsync(booking, ct);
+    }
+
+
     private async Task BookingRejectAsync(EventEntity? ev, BookingEntity booking, CancellationToken ct)
     {
         if (ev?.ReleaseSeats() is true)
-            await _repoEvents.UpdateAsync(ev, ct);
+        {
+            try
+            {
+                await _repoEvents.UpdateAsync(ev, ct);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Кто-то уже изменил эту строку (другой параллельный запрос)
+                throw new ObjectNotFoundDomainException("Не удалось изменить событие. Повторите операцию.", ex);
+            }
+        }
 
         if (booking.Reject())
+            await _repoBooking.UpdateBookingAsync(booking, ct);
+    }
+
+    private async Task BookingCancelAsync(EventEntity? ev, BookingEntity booking, CancellationToken ct)
+    {
+        if (ev?.ReleaseSeats() is true)
+        {
+            try
+            {
+                await _repoEvents.UpdateAsync(ev, ct);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // Кто-то уже изменил эту строку (другой параллельный запрос)
+                throw new ObjectNotFoundDomainException("Не удалось изменить событие. Повторите операцию.", ex);
+            }
+        }
+
+        if (booking.Cancel())
             await _repoBooking.UpdateBookingAsync(booking, ct);
     }
 }

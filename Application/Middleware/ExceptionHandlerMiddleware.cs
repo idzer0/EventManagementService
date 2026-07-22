@@ -1,12 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Security.Authentication;
 using System.Text.Json;
 using System.Xml;
 using Domain.DomainExceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-namespace EventManagementService.Middleware;
+namespace Application.Middleware;
 
 /// <summary>
 /// Слой обработки ошибок, возникающих в процессе обработки запросов
@@ -98,6 +101,7 @@ public class ExceptionHandlerMiddleware
             ValidationDomainException vde => StatusCodes.Status400BadRequest,
             ObjectNotFoundDomainException onfe => StatusCodes.Status404NotFound,
             ValidationException ve => StatusCodes.Status400BadRequest,
+            UnauthorizedAccessDomainException authe => StatusCodes.Status403Forbidden,
             KeyNotFoundException nfe => StatusCodes.Status404NotFound,
             NoAvailableSeatsDomainException nasde => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError

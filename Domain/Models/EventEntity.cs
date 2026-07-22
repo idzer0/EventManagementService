@@ -48,10 +48,14 @@ public class EventEntity
     public bool TryReserveSeats(int count = 1)
     {
         if (AvailableSeats < count)
+        {
             return false;
-
+        }
+        else
+        {
             AvailableSeats -= count;
             return true;
+        }
     }
 
     /// <summary>

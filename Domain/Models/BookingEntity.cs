@@ -33,8 +33,14 @@ public class BookingEntity
     /// </summary>
     public DateTimeOffset? ProcessedAt { get; set; }
 
-    // Навигационное свойство.
+    /// <summary>
+    /// Идентификатор пользователя.
+    /// </summary>
+    public int UserId { get; set; }
+
+    // Навигационные свойства.
     public virtual EventEntity? Event { get; set; }
+    public virtual UserEntity? User { get; set; }
 
     /// <summary>
     /// Подтверждение брони.
@@ -54,10 +60,23 @@ public class BookingEntity
     /// </summary>
     public bool Reject()
     {
-        if (Status == BookingStatusEnum.Rejected)
+        if (Status != BookingStatusEnum.Pending)
             return false;
 
         Status = BookingStatusEnum.Rejected;
+        ProcessedAt = DateTimeOffset.UtcNow;
+        return true;
+    }
+
+    /// <summary>
+    /// Отказ в бронировании.
+    /// </summary>
+    public bool Cancel()
+    {
+        if (Status is BookingStatusEnum.Canceled or BookingStatusEnum.Rejected)
+            return false;
+
+        Status = BookingStatusEnum.Canceled;
         ProcessedAt = DateTimeOffset.UtcNow;
         return true;
     }

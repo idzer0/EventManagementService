@@ -85,8 +85,8 @@ public class BookingServiceFailTests
             Id = eventId,
             Title = "Test event",
             Description = "Test event",
-            StartAt = DateTime.Now.Date.AddDays(1),
-            EndAt = DateTime.Now.Date.AddDays(2),
+            StartAt = DateTime.UtcNow.Date.AddDays(1),
+            EndAt = DateTime.UtcNow.Date.AddDays(2),
             TotalSeats = 100,
             AvailableSeats = 0,
         };
@@ -100,4 +100,31 @@ public class BookingServiceFailTests
         await act.Should().ThrowAsync<NoAvailableSeatsDomainException>()
             .WithMessage("No available seats for this event");
     }
+
+    [Fact]
+    public async Task CreateBookingAsync_BeingLate_ValidationDomainException()
+    {
+        Guid eventId = Guid.NewGuid();
+
+        var ev = new EventEntity
+        {
+            Id = eventId,
+            Title = "Test event",
+            Description = "Test event",
+            StartAt = DateTime.UtcNow.Date.AddDays(-1),
+            EndAt = DateTime.UtcNow.Date.AddDays(2),
+            TotalSeats = 100,
+            AvailableSeats = 0,
+        };
+
+        var dbContext = _dbContextMocker.GetAppDbContext(nameof(this.CreateBookingAsync_BeingLate_ValidationDomainException));
+        var repoEvents = _dbContextMocker.ArrangeEventsRepositoryTestCase(dbContext, [ev]);
+        var bookingService = _dbContextMocker.ArrangeBookingServiceTestCase(dbContext, repoEvents, []);
+
+        Func<Task> act = async () => await bookingService.CreateBookingAsync(eventId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ValidationDomainException>()
+            .WithMessage("Бронь не может быть создана.");
+    }
+
 }

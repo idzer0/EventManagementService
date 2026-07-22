@@ -28,6 +28,6 @@ public abstract class UnitDBTestBase(PostgresFixture fixture)
     {
         NpgsqlConnection.ClearAllPools();
         await using var context = CreateContext();
-        await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Bookings\", \"Events\" RESTART IDENTITY CASCADE");
+        await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Bookings\", \"Events\", \"Users\" RESTART IDENTITY CASCADE");
     }
 }

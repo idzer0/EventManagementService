@@ -23,4 +23,15 @@ public interface IBookingRepository
     /// Обновить информацию о бронировании.
     /// </summary>
     Task UpdateBookingAsync(BookingEntity entity, CancellationToken ct);
+
+    /// <summary>
+    /// Удалить бронирование.
+    /// </summary>
+    Task DeleteBookingAsync(BookingEntity entity, CancellationToken ct);
+
+    /// <summary>
+    /// Получить список активных бронирований для пользователя.
+    /// Активные брони в статусах: Pending, Confirmed
+    /// </summary>
+    Task<int> GetActiveBookingsAsync(CancellationToken ct);
 }

@@ -1,18 +1,21 @@
 using Application.DiContext;
+using Application.Middleware;
+using Application.ServicesBackground;
 using EventManagementService.DiContext;
+using EventManagementService.DiContext.Auth;
 using EventManagementService.DiContext.Presentation;
 using Infrastructure.DataAccess;
-using EventManagementService.Middleware;
-using Application.ServicesBackground;
-using Microsoft.EntityFrameworkCore;
 using Infrastructure.DiContext;
-using Microsoft.AspNetCore.Diagnostics;
 using Infrastructure.Initializators;
+using Microsoft.EntityFrameworkCore;
+using Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddPresentation();
 
 // Включаем валидацию только в Development
@@ -44,6 +47,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())

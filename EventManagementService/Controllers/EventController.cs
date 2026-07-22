@@ -1,5 +1,7 @@
 using Application.Contracts;
 using Application.DTO;
+using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventManagementService.Controllers;
@@ -20,6 +22,7 @@ public class EventController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<PaginatedResponse<EventResponse>>> GetAll([FromQuery] EventsFilter filter, CancellationToken ct)
     {
@@ -32,6 +35,7 @@ public class EventController : ControllerBase
     /// Получить событие по Id
     /// </summary>
     [HttpGet("{id:guid}")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EventResponse>> GetById(Guid id, CancellationToken ct)
@@ -45,8 +49,10 @@ public class EventController : ControllerBase
     /// Создать событие
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = nameof(UsersRole.Admin))] //(Roles = nameof(UsersRole.Admin))
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<EventResponse>> Create([FromBody] EventRequest createEvent, CancellationToken ct)
     {
         var created = await _eventService.CreateAsync(createEvent, ct);
@@ -58,9 +64,11 @@ public class EventController : ControllerBase
     /// Обновить событие
     /// </summary>
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = nameof(UsersRole.Admin))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EventResponse>> Update(Guid id, [FromBody] EventRequest updateEvent, CancellationToken ct)
     {
         var updated = await _eventService.UpdateAsync(id, updateEvent, ct);
@@ -72,7 +80,9 @@ public class EventController : ControllerBase
     /// Удалить событие
     /// </summary>
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = nameof(UsersRole.Admin))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
@@ -85,7 +95,9 @@ public class EventController : ControllerBase
     /// Забронировать событие.
     /// </summary>
     [HttpPost("{id:guid}/book")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<BookingInfo>> CreateBookingAsync(Guid id, CancellationToken ct)

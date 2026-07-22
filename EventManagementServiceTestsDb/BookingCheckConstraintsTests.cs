@@ -47,16 +47,21 @@ public class BookingCheckConstraintsTests(PostgresFixture fixture) : UnitDBTestB
             EndAt = DateTime.UtcNow.AddDays(1)
         };
 
+        await ResetDatabaseAsync();
+        await using var context = CreateContext();
+
+        await context.Users.AddAsync(TestDataHelper.GetTestUser());
+        await context.SaveChangesAsync();
+
         var booking = new BookingEntity()
         {
             Id = Guid.NewGuid(),
             EventId = evt.Id,
             Status = BookingStatusEnum.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
+            UserId = 1,
         };
 
-        await ResetDatabaseAsync();
-        await using var context = CreateContext();
         await context.Events.AddAsync(evt);
         await context.Bookings.AddAsync(booking);
         await context.SaveChangesAsync();
@@ -85,16 +90,22 @@ public class BookingCheckConstraintsTests(PostgresFixture fixture) : UnitDBTestB
             EndAt = DateTime.UtcNow.AddDays(1)
         };
 
+        await ResetDatabaseAsync();
+        await using var context = CreateContext();
+
+        await context.Users.AddAsync(TestDataHelper.GetTestUser());
+        await context.SaveChangesAsync();
+
+
         var booking = new BookingEntity()
         {
             Id = Guid.NewGuid(),
             EventId = evt.Id,
             Status = BookingStatusEnum.Pending,
             CreatedAt = DateTimeOffset.UtcNow,
+            UserId = 1,
         };
 
-        await ResetDatabaseAsync();
-        await using var context = CreateContext();
         await context.Events.AddAsync(evt);
         await context.Bookings.AddAsync(booking);
         await context.SaveChangesAsync();
