@@ -31,7 +31,7 @@ REST API сервис, позволяющий:
 
 4. Запустить приложение:
   в Production
-    dotnet run --project ./EventManagementService/EventMS/AuthService/Presentation.csproj
+    dotnet run --project ./EventManagementService/EventMS/Auth/Presentation.csproj
   в окружении Development
     ASPNETCORE_ENVIRONMENT=Development dotnet run --project ./EventManagementService/EventMS/Auth/Presentation
 

@@ -46,7 +46,7 @@ public class BookingEntity
         if (Status != BookingStatusEnum.Pending)
             return false;
 
-        Status = BookingStatusEnum.Confirmed;
+        Status = BookingStatusEnum.InProcessing;
         ProcessedAt = DateTimeOffset.UtcNow;
         return true;
     }

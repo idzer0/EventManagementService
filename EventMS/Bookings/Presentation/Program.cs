@@ -12,8 +12,10 @@ using Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile(builder.Configuration["PathToJwtSecret"] ?? string.Empty, optional: true, reloadOnChange: true);
+
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddPresentation();

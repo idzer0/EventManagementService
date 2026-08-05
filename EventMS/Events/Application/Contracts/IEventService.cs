@@ -38,4 +38,14 @@ public interface IEventService
     /// Проверить наличие события
     /// </summary>
     Task<bool> IsExistAsync(Guid id, CancellationToken ct);
+
+    /// <summary>
+    /// Зарезервировать место
+    /// </summary>
+    Task<bool> ReserveSeat(Guid eventId, CancellationToken ct);
+
+    /// <summary>
+    /// Снять резерв
+    /// </summary>
+    Task<bool> ReleaseSeat(Guid eventId, CancellationToken ct);
 }

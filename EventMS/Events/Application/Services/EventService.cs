@@ -1,9 +1,9 @@
-using Domain.Models;
-using Application.DTO;
 using Application.Contracts;
-using Microsoft.Extensions.Logging;
+using Application.DTO;
 using Application.Mappers;
 using Domain.DomainExceptions;
+using Domain.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -103,5 +103,36 @@ public class EventService : IEventService
     public Task<bool> IsExistAsync(Guid id, CancellationToken ct)
     {
         return _repository.IsExistsAsync(id, ct);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> ReserveSeat(Guid eventId, CancellationToken ct)
+    {
+        var ev = await _repository.GetByIdAsync(eventId, ct)
+            ?? throw new ObjectNotFoundDomainException($"Событие не найдено. EventId: {eventId}");
+
+        if (ev.StartAt <= DateTime.UtcNow)
+            throw new ValidationDomainException($"Нельзя зарезервировать место на событие, которое уже началось. EventId: {eventId}");
+
+        var result = ev.TryReserveSeats();
+
+        if (result)
+            await _repository.UpdateAsync(ev, ct);
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> ReleaseSeat(Guid eventId, CancellationToken ct)
+    {
+        var ev = await _repository.GetByIdAsync(eventId, ct)
+            ?? throw new ValidationDomainException($"Событие не найдено. EventId: {eventId}");
+
+        var result = ev.ReleaseSeats();
+
+        if (result)
+            await _repository.UpdateAsync(ev, ct);
+
+        return result;
     }
 }

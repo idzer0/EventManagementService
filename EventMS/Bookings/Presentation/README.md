@@ -1,15 +1,14 @@
 # Event Management API
 
-REST API для управления мероприятиями.  
+REST API для управления бронированиями мест на события.  
 Реализованы CRUD-операции, валидация, Swagger.
 
 ## 📋 О проекте
 
 REST API сервис, позволяющий:
-- Создавать и управлять мероприятиями (событиями)
-- Бронировать места на мероприятия
+- Бронировать, отменять, удалять места на мероприятия
 - Получать статус обработки бронирования
-- Асинхронно обрабатывать заявки с помощью фонового сервиса
+- Асинхронно обрабатывать заявки с помощью фонового сервиса и взаимодействия с сервисом событий по Kafka.
 
 ## Требования
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
@@ -32,10 +31,13 @@ REST API сервис, позволяющий:
     dotnet build
 
 4. Запустить приложение:
-    dotnet run --project ./EventManagementService/EventManagementService.csproj
+  в Production
+    dotnet run --project ./EventManagementService/EventMS/Bookings/Presentation.csproj
+  в окружении Development
+    ASPNETCORE_ENVIRONMENT=Development dotnet run --project ./EventManagementService/EventMS/Bookings/Presentation
 
 5. Открыть Swagger UI:
-http://localhost:5244/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
+http://localhost:5000/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
 
 Для авторизации в сваггер необходимо по кнопке Authorize ввести токен, полученный в методе login, в предложенное поле в формате:
 "Bearer <токен>" (без кавычек).
@@ -60,14 +62,8 @@ Infrastructure
   - реализации интерфейсов репозиториев с использованием DbContext;
   - сам DbContext, конфигурации маппинга сущностей, миграции.
 
-EventManagementService 
-  Выполняет роль Presentation. Содержит контроллеры и обработчик глобальных исключений с маппингом доменных исключений в HTTP-статусы. 
-
-EventManagementServiceTests
-  Содержит юнит тесты и интеграционные тесты с использованием In-Memory
-
-EventManagementServiceTestsDb
-  Содержит интеграционные тесты с использованием PgSql by Testconteiners
+Presentation 
+  Содержит контроллеры и обработчик глобальных исключений с маппингом доменных исключений в HTTP-статусы. 
 
 ## Тестирование
 
@@ -96,30 +92,24 @@ Rejected = 3	Бронь отклонена (например, нет свобо�
 Canceled = 4	Бронь отменена пользователем
 
 #### API Эндпоинты
-Управление мероприятиями (Events)
-Метод	Эндпоинт	Описание
-POST	/events	Создать новое мероприятие
-GET	/events	Получить список всех мероприятий
-GET	/events/{id}	Получить мероприятие по ID
-PUT	/events/{id}	Обновить мероприятие
-DELETE	/events/{id}	Удалить мероприятие
-
 Управление бронированиями (Bookings)
 Метод	Эндпоинт	Описание	Ответ
-POST	/events/{id}/book	Создать бронь на мероприятие	202 Accepted + Location header
+POST	/bookings/{id}/book	Создать бронь на мероприятие	202 Accepted + Location header
+POST	/bookings/{id}/cancel	Отменить бронь на мероприятие	202 Accepted + Location header
+DELETE	/bookings/{id}	Удалить бронь на мероприятие	202 Accepted + Location header
 GET	/bookings/{id}	Получить статус бронирования	200 OK или 404 Not Found
 
 
 #### Детали реализации
 Асинхронное создание бронирования
-POST /events/{eventId}/book
+POST /bookings/{eventId}/book
 
 Создаёт новое бронирование и мгновенно возвращает ответ, обработка выполняется в фоне.
 
 Пример запроса:
 
 bash
-curl -X POST http://localhost:5244/events/3fa85f64-5717-4562-b3fc-2c963f66afa6/book
+curl -X POST http://localhost:5000/events/3fa85f64-5717-4562-b3fc-2c963f66afa6/book
 Пример успешного ответа (202 Accepted):
 
 http
@@ -144,9 +134,10 @@ Content-Type: application/json
 
 Алгоритм создания брони:
 
+  Отправляется сообщение в сервис событий
   Производится проверка на наличие доступных мест
-  Если места есть, то бронь создается, а количество доступных мест уменьшается
-  Если мест недостаточно, то бронь отклоняется, возвращается статус 409
+  По результату проверок отправляется сообщение из сервиса событий в сервис бронирований
+  Обработчик ответа либо подтверждает, либо отменяет бронь.
 
 Логика контроля доступных мест:
   
@@ -211,11 +202,11 @@ json
 
 Выполняется искусственная задержка 2 секунды (имитация вызова внешней системы)
 
-Бронь переводится в статус Confirmed (в текущей версии)
-
-Заполняется поле ProcessedAt текущим временем
+Бронь переводится в статус InProcessed (в текущей версии)
 
 Обновлённая бронь сохраняется в хранилище
+
+В сервис событий отправляется сообщение для подтверждения бронирования.
 
 При ошибках выполняется логирование и сервис продолжает работу
 
@@ -230,13 +221,13 @@ json
 #### Работа с изменениями схемы данных
 
 Создание изменений схемы данных: 
-  dotnet ef migrations add <имя_миграции> --project Infrastructure --startup-project EventManagementService
+  dotnet ef migrations add <имя_миграции> --project Infrastructure --startup-project Presentation
   
   или через .sql файлы:
     ./create-migration.sh /path/to/project [имя_миграции]
 
 Применение изменений к базе данных:
-  dotnet ef database update --project Infrastructure --startup-project EventManagementService
+  dotnet ef database update --project Infrastructure --startup-project Presentation
 
   или через .sql файлы:
   ./apply-migration-sql.sh /path/to/project [имя_миграции]

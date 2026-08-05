@@ -8,17 +8,22 @@ public enum BookingStatusEnum : int
     Pending = 1,
 
     /// <summary>
+    /// Бронь в обработке
+    /// </summary>
+    InProcessing = 2,
+
+    /// <summary>
     /// Бронь подтверждена
     /// </summary>
-    Confirmed = 2,
+    Confirmed = 3,
 
     /// <summary>
     /// Бронь отклонена
     /// </summary>
-    Rejected = 3,
+    Rejected = 4,
 
     /// <summary>
     /// Бронь отменена
     /// </summary>
-    Canceled = 4,
+    Canceled = 5,
 }

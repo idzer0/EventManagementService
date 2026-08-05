@@ -7,9 +7,7 @@ REST API для управления мероприятиями.
 
 REST API сервис, позволяющий:
 - Создавать и управлять мероприятиями (событиями)
-- Бронировать места на мероприятия
-- Получать статус обработки бронирования
-- Асинхронно обрабатывать заявки с помощью фонового сервиса
+- Асинхронно обрабатывать заявки от сервиса бронирования с помощью фонового Consumer
 
 ## Требования
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
@@ -32,10 +30,13 @@ REST API сервис, позволяющий:
     dotnet build
 
 4. Запустить приложение:
-    dotnet run --project ./EventManagementService/EventManagementService.csproj
+  в Production
+    dotnet run --project ./EventManagementService/EventMS/Events/Presentation.csproj
+  в окружении Development
+    ASPNETCORE_ENVIRONMENT=Development dotnet run --project ./EventManagementService/EventMS/Events/Presentation
 
 5. Открыть Swagger UI:
-http://localhost:5244/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
+http://localhost:5000/swagger (порт может отличаться; точный адрес выводится в консоли после запуска).
 
 Для авторизации в сваггер необходимо по кнопке Authorize ввести токен, полученный в методе login, в предложенное поле в формате:
 "Bearer <токен>" (без кавычек).
@@ -60,8 +61,8 @@ Infrastructure
   - реализации интерфейсов репозиториев с использованием DbContext;
   - сам DbContext, конфигурации маппинга сущностей, миграции.
 
-EventManagementService 
-  Выполняет роль Presentation. Содержит контроллеры и обработчик глобальных исключений с маппингом доменных исключений в HTTP-статусы. 
+Presentation 
+  Содержит контроллеры и обработчик глобальных исключений с маппингом доменных исключений в HTTP-статусы. 
 
 EventManagementServiceTests
   Содержит юнит тесты и интеграционные тесты с использованием In-Memory
@@ -88,13 +89,6 @@ dotnet test
 sudo chgrp "$(id -gn)" /var/run/docker.sock
 sudo chmod g+rw /var/run/docker.sock
 
-#### Статусы бронирования (BookingStatus)
-Статус	Описание
-Pending = 1	    Бронь создана, ожидает обработки
-Confirmed = 2	Бронь подтверждена системой
-Rejected = 3	Бронь отклонена (например, нет свободных мест)
-Canceled = 4	Бронь отменена пользователем
-
 #### API Эндпоинты
 Управление мероприятиями (Events)
 Метод	Эндпоинт	Описание
@@ -104,50 +98,7 @@ GET	/events/{id}	Получить мероприятие по ID
 PUT	/events/{id}	Обновить мероприятие
 DELETE	/events/{id}	Удалить мероприятие
 
-Управление бронированиями (Bookings)
-Метод	Эндпоинт	Описание	Ответ
-POST	/events/{id}/book	Создать бронь на мероприятие	202 Accepted + Location header
-GET	/bookings/{id}	Получить статус бронирования	200 OK или 404 Not Found
-
-
 #### Детали реализации
-Асинхронное создание бронирования
-POST /events/{eventId}/book
-
-Создаёт новое бронирование и мгновенно возвращает ответ, обработка выполняется в фоне.
-
-Пример запроса:
-
-bash
-curl -X POST http://localhost:5244/events/3fa85f64-5717-4562-b3fc-2c963f66afa6/book
-Пример успешного ответа (202 Accepted):
-
-http
-HTTP/1.1 202 Accepted
-Location: /bookings/7c9e6679-7425-40de-944b-e07fc1f90ae7
-Content-Type: application/json
-
-{
-  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "status": "Pending",
-  "createdAt": "2024-11-20T14:30:00Z",
-  "processedAt": null
-}
-Коды ответов:
-
-202 Accepted — бронь создана, обработка начата
-403 Forbidden — недостаточно прав
-404 Not Found — мероприятие с указанным Id не найдено
-409 Conflict — недостаточно свободных мест
-
-
-Алгоритм создания брони:
-
-  Производится проверка на наличие доступных мест
-  Если места есть, то бронь создается, а количество доступных мест уменьшается
-  Если мест недостаточно, то бронь отклоняется, возвращается статус 409
-
 Логика контроля доступных мест:
   
   В запросе на создание события используется поле TotalSeats. 
@@ -163,59 +114,8 @@ Content-Type: application/json
 Это позволяет избежать ситуацию с овербукингом.
 
 
-Получение статуса бронирования
-GET /bookings/{bookingId}
-
-Возвращает текущее состояние бронирования.
-
-Пример запроса:
-
-bash
-curl -X GET https://api.example.com/bookings/7c9e6679-7425-40de-944b-e07fc1f90ae7
-Пример ответа (200 OK) — бронь в обработке:
-
-json
-{
-  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "status": "Pending",
-  "createdAt": "2024-11-20T14:30:00Z",
-  "processedAt": null
-}
-Пример ответа (200 OK) — бронь обработана:
-
-json
-{
-  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "status": "Confirmed",
-  "createdAt": "2024-11-20T14:30:00Z",
-  "processedAt": "2024-11-20T14:30:05Z"
-}
-Коды ответов:
-
-200 OK — бронь найдена
-403 Forbidden — недостаточно прав
-404 Not Found — бронь с указанным Id не существует
-
-
-#### Фоновая обработка заявок
-Сервис использует BookingBackgroundProcessing для асинхронной обработки бронирований:
-
-Алгоритм работы:
-Фоновый сервис запускается при старте приложения
-
-Каждые 5 секунд сервис проверяет хранилище на наличие броней со статусом Pending
-
-Для каждой найденной брони:
-
-Выполняется искусственная задержка 2 секунды (имитация вызова внешней системы)
-
-Бронь переводится в статус Confirmed (в текущей версии)
-
-Заполняется поле ProcessedAt текущим временем
-
-Обновлённая бронь сохраняется в хранилище
+#### Фоновый сервис 
+Сервис использует BookingRequestConsumer для асинхронной обработки запросов на подтверждение и отмену от сервиса бронирований:
 
 При ошибках выполняется логирование и сервис продолжает работу
 
@@ -230,13 +130,13 @@ json
 #### Работа с изменениями схемы данных
 
 Создание изменений схемы данных: 
-  dotnet ef migrations add <имя_миграции> --project Infrastructure --startup-project EventManagementService
+  dotnet ef migrations add <имя_миграции> --project Infrastructure --startup-project Presentation
   
   или через .sql файлы:
     ./create-migration.sh /path/to/project [имя_миграции]
 
 Применение изменений к базе данных:
-  dotnet ef database update --project Infrastructure --startup-project EventManagementService
+  dotnet ef database update --project Infrastructure --startup-project Presentation
 
   или через .sql файлы:
   ./apply-migration-sql.sh /path/to/project [имя_миграции]

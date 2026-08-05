@@ -1,10 +1,13 @@
+using System.Text.Json;
 using Application.Contracts;
 using Application.DTO;
 using Application.Mappers;
 using Domain.DomainExceptions;
+using Domain.Enums;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Application.Services;
 
@@ -17,42 +20,28 @@ public class BookingService : IBookingService
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<BookingService> _logger;
     private readonly SemaphoreSlim _processingSemaphore = new(1, 1);
+    private readonly IEventPublisher _publisher;
+    private readonly KafkaSettings _kafkaSettings;
 
     public BookingService (
         IBookingRepository repoBooking,
         ICurrentUserService currentUserService,
+        IEventPublisher publisher,
+        IOptions<KafkaSettings> kafkaSettings,
         ILogger<BookingService> logger)
     {
         _repoBooking = repoBooking;
         _currentUserService = currentUserService;
+        _publisher = publisher;
+        _kafkaSettings = kafkaSettings.Value;
         _logger = logger;
     }
 
     /// <inheritdoc/>
     public async Task<BookingInfo> CreateBookingAsync(Guid eventId, CancellationToken ct)
     {
-        // var ev = await _repoEvents.GetByIdAsync(eventId, ct)
-        //     ?? throw new ObjectNotFoundDomainException($"События с Id {eventId} не найдено.");
-
-        // if (ev.StartAt < DateTime.UtcNow)
-        //     throw new ValidationDomainException("Бронь не может быть создана.");
-
-        // if (!ev.TryReserveSeats())
-        //     throw new NoAvailableSeatsDomainException("No available seats for this event");
-
         if (await _repoBooking.GetActiveBookingsAsync(ct) >= 10)
             throw new NoAvailableSeatsDomainException("Бронь не может быть создана.");
-
-        // try
-        // {
-        //     // Сохраняем изменения – EF сгенерирует UPDATE с условием WHERE Id = ... AND xmin = @oldXmin
-        //     await _repoEvents.UpdateAsync(ev, ct);
-        // }
-        // catch (DbUpdateConcurrencyException ex)
-        // {
-        //     // Кто-то уже изменил эту строку (другой параллельный запрос)
-        //     throw new NoAvailableSeatsDomainException("No available seats for this event", ex);
-        // }
 
         return BookingMapper.MapToResponse(
             await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
@@ -79,17 +68,6 @@ public class BookingService : IBookingService
         BookingEntity? booking = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
             ?? throw new ObjectNotFoundDomainException($"Бронирование Id {bookingId} не найдено.");
 
-        // EventEntity? ev = await _repoEvents.GetByIdAsync(booking.EventId, ct);
-        // // проверка, существует ли бронируемое событие
-        // if (ev is null)
-        // {
-        //     if (booking.Reject())
-        //     {
-        //         await _repoBooking.UpdateBookingAsync(booking, ct);
-        //         _logger.LogWarning("Событие Id {BookingEventId} отсутствует", booking.EventId);
-        //     }
-        // }
-        // else 
         if (booking.Status == BookingStatusEnum.Pending)
         {
             await _processingSemaphore.WaitAsync(ct);
@@ -98,15 +76,25 @@ public class BookingService : IBookingService
                 if  (booking.Confirm())
                 {
                     await _repoBooking.UpdateBookingAsync(booking, ct);
+
+                    var eventMessage = JsonSerializer.Serialize(new
+                    {
+                        booking.EventId,
+                        Confirm = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
+
+                    // Публикуем в Kafka
+                    await _publisher.PublishAsync(_kafkaSettings.OutgoingTopic, booking.EventId.ToString(), eventMessage);
                 }
                 else //для почти невозможного случая одновременной обработки брони с одним Id
                 {
-                    await BookingRejectAsync(booking, ct);
+                    await BookingRejectAsync(booking);
                 }
             }
             catch
             {
-                await BookingRejectAsync(booking, ct);
+                await BookingRejectAsync(booking);
                 throw;
             }
             finally
@@ -122,7 +110,7 @@ public class BookingService : IBookingService
         var booking = await _repoBooking.GetBookingByIdAsync(bookingId, ct)
             ?? throw new ObjectNotFoundDomainException($"Бронь с Id {bookingId} не найдена.");
 
-        await BookingRejectAsync(booking, ct);
+        await BookingRejectAsync(booking);
     }
 
 
@@ -135,7 +123,7 @@ public class BookingService : IBookingService
         if(!_currentUserService.IsAllowUserOperation(booking.UserId))
             throw new UnauthorizedAccessDomainException("Недостаточно прав");
 
-        await BookingCancelAsync(booking, ct);
+        await BookingCancelAsync(booking);
     }
 
     /// <inheritdoc/>
@@ -147,47 +135,48 @@ public class BookingService : IBookingService
         if(!_currentUserService.IsAllowUserOperation(booking.UserId))
             throw new UnauthorizedAccessDomainException("Недостаточно прав");
 
-        await BookingCancelAsync(booking, ct);
+        await BookingDeleteAsync(booking);
+    }
+    
+    private async Task BookingRejectAsync(BookingEntity booking)
+    {
+        var eventMessage = JsonSerializer.Serialize(new BookingRequest()
+        {
+            BookingId = booking.Id,
+            EventId = booking.EventId,
+            BookingActionType = BookingActionTypeEnum.Reject,
+            CreatedAt = DateTime.UtcNow
+        });
 
-        await _repoBooking.DeleteBookingAsync(booking, ct);
+        // Публикуем в Kafka
+        await _publisher.PublishAsync(_kafkaSettings.OutgoingTopic, booking.EventId.ToString(), eventMessage);
     }
 
-
-    private async Task BookingRejectAsync(BookingEntity booking, CancellationToken ct)
+    private async Task BookingCancelAsync(BookingEntity booking)
     {
-        // if (ev?.ReleaseSeats() is true)
-        // {
-            try
-            {
-                //await _repoEvents.UpdateAsync(ev, ct);
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                // Кто-то уже изменил эту строку (другой параллельный запрос)
-                throw new ObjectNotFoundDomainException("Не удалось изменить событие. Повторите операцию.", ex);
-            }
-        //}
+        var eventMessage = JsonSerializer.Serialize(new BookingRequest()
+        {
+            BookingId = booking.Id,
+            EventId = booking.EventId,
+            BookingActionType = BookingActionTypeEnum.Reject,
+            CreatedAt = DateTime.UtcNow
+        });
 
-        if (booking.Reject())
-            await _repoBooking.UpdateBookingAsync(booking, ct);
+        // Публикуем в Kafka
+        await _publisher.PublishAsync(_kafkaSettings.OutgoingTopic, booking.EventId.ToString(), eventMessage);
     }
 
-    private async Task BookingCancelAsync(BookingEntity booking, CancellationToken ct)
+    private async Task BookingDeleteAsync(BookingEntity booking)
     {
-        // if (ev?.ReleaseSeats() is true)
-        // {
-        //     try
-        //     {
-        //         await _repoEvents.UpdateAsync(ev, ct);
-        //     }
-        //     catch (DbUpdateConcurrencyException ex)
-        //     {
-        //         // Кто-то уже изменил эту строку (другой параллельный запрос)
-        //         throw new ObjectNotFoundDomainException("Не удалось изменить событие. Повторите операцию.", ex);
-        //     }
-        // }
+        var eventMessage = JsonSerializer.Serialize(new BookingRequest()
+        {
+            BookingId = booking.Id,
+            EventId = booking.EventId,
+            BookingActionType = BookingActionTypeEnum.Delete,
+            CreatedAt = DateTime.UtcNow
+        });
 
-        if (booking.Cancel())
-            await _repoBooking.UpdateBookingAsync(booking, ct);
+        // Публикуем в Kafka
+        await _publisher.PublishAsync(_kafkaSettings.OutgoingTopic, booking.EventId.ToString(), eventMessage);
     }
 }
