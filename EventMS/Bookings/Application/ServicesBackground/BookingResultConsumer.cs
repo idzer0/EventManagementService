@@ -1,8 +1,9 @@
 using System.Text.Json;
 using Application.Contracts;
-using Application.DTO;
-using Application.Services;
-using Domain.Enums;
+using KafkaSettingsShared.DTO;
+using KafkaSettingsShared.Enums;
+using KafkaSettingsShared.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -11,8 +12,7 @@ namespace Application.ServicesBackground;
 public class BookingResultConsumer(
     ILogger<BookingResultConsumer> logger,
     IOptions<KafkaSettings> settings,
-    IServiceProvider serviceProvider,
-    IBookingResponseService service) : KafkaConsumerService(logger, settings, serviceProvider)
+    IServiceProvider serviceProvider) : KafkaConsumerService(logger, settings, serviceProvider)
 {
 
     /// <summary>
@@ -20,6 +20,8 @@ public class BookingResultConsumer(
     /// </summary>
     protected override async Task HandleMessageAsync(string key, string value, IServiceProvider scopeServiceProvider, CancellationToken ct)
     {
+        var service = scopeServiceProvider.GetRequiredService<IBookingResponseService>();
+
         BookingResponse? response = null;
         try
         {

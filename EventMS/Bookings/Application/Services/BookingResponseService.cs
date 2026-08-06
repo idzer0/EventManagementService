@@ -2,12 +2,13 @@ using Application.Contracts;
 using Application.DTO;
 using Domain.DomainExceptions;
 using Domain.Models;
+using KafkaSettingsShared.DTO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Application.Services;
 
-public class BookingResponseHandlerService(
+public class BookingResponseService(
     IBookingRepository repoBooking,
     ILogger<BookingService> logger) : IBookingResponseService
 {

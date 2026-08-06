@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\KafkaSettings\KafkaSettingsShared.csproj" />
     <ProjectReference Include="..\..\Auth\Contracts\Contracts.csproj" />
   </ItemGroup>
 </Project>

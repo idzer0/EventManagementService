@@ -1,6 +1,6 @@
-using Domain.Enums;
+using KafkaSettingsShared.Enums;
 
-namespace Application.DTO;
+namespace KafkaSettingsShared.DTO;
 
 public class BookingResponse
 {

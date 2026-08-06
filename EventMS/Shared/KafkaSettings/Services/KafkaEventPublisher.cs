@@ -1,8 +1,8 @@
-using Application.Contracts;
 using Confluent.Kafka;
+using KafkaSettingsShared.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Services;
+namespace KafkaSettingsShared.Services;
 
 public class KafkaEventPublisher : IEventPublisher
 {
@@ -24,8 +24,6 @@ public class KafkaEventPublisher : IEventPublisher
                 Key = key,
                 Value = message
             });
-            _logger.LogInformation("Сообщение отправлено в топик {Topic}, партиция {Partition}, оффсет {Offset}",
-                topic, result.Partition, result.Offset);
         }
         catch (ProduceException<string, string> ex)
         {

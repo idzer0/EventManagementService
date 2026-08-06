@@ -1,4 +1,4 @@
-namespace Application.Contracts;
+namespace KafkaSettingsShared.Contracts;
 
 public interface IEventPublisher
 {

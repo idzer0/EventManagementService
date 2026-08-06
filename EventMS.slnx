@@ -1,28 +1,31 @@
 <Solution>
-  <Folder Name="/EventMS/" />
+  <Folder Name="/EventMS/"/>
   <Folder Name="/EventMS/Auth/">
-    <Project Path="EventMS/Auth/Application/Application.csproj" />
-    <Project Path="EventMS/Auth/Domain/Domain.csproj" />
-    <Project Path="EventMS/Auth/Contracts/Contracts.csproj" />
-    <Project Path="EventMS/Auth/Infrastructure/Infrastructure.csproj" />
+    <Project Path="EventMS/Auth/Application/Application.csproj"/>
+    <Project Path="EventMS/Auth/Domain/Domain.csproj"/>
+    <Project Path="EventMS/Auth/Contracts/Contracts.csproj"/>
+    <Project Path="EventMS/Auth/Infrastructure/Infrastructure.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Auth/Presentation/">
-    <Project Path="EventMS/Auth/Presentation/AuthService.csproj" />
+    <Project Path="EventMS/Auth/Presentation/AuthService.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Bookings/">
-    <Project Path="EventMS/Bookings/Application/Application.csproj" />
-    <Project Path="EventMS/Bookings/Domain/Domain.csproj" />
-    <Project Path="EventMS/Bookings/Infrastructure/Infrastructure.csproj" />
+    <Project Path="EventMS/Bookings/Application/Application.csproj"/>
+    <Project Path="EventMS/Bookings/Domain/Domain.csproj"/>
+    <Project Path="EventMS/Bookings/Infrastructure/Infrastructure.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Bookings/Presentation/">
-    <Project Path="EventMS/Bookings/Presentation/BookingsService.csproj" />
+    <Project Path="EventMS/Bookings/Presentation/BookingsService.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Events/">
-    <Project Path="EventMS/Events/Application/Application.csproj" />
-    <Project Path="EventMS/Events/Domain/Domain.csproj" />
-    <Project Path="EventMS/Events/Infrastructure/Infrastructure.csproj" />
+    <Project Path="EventMS/Events/Application/Application.csproj"/>
+    <Project Path="EventMS/Events/Domain/Domain.csproj"/>
+    <Project Path="EventMS/Events/Infrastructure/Infrastructure.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Events/Presentation/">
-    <Project Path="EventMS/Events/Presentation/EventsService.csproj" />
+    <Project Path="EventMS/Events/Presentation/EventsService.csproj"/>
+  </Folder>
+  <Folder Name="/EventMS/Shared/">
+    <Project Path="EventMS/Shared/KafkaSettings/KafkaSettingsShared.csproj"/>
   </Folder>
 </Solution>

@@ -92,6 +92,65 @@ services:
       timeout: 5s
       retries: 5
 
+# ─────────────────────────── Микросервисы ───────────────────────────
+  authservice:
+    build:
+      context: .          # путь к папке с Dockerfile
+      dockerfile: Auth/Presentation/Dockerfile
+    container_name: authservice-app
+    restart: unless-stopped
+    depends_on:
+      authservice-db:
+        condition: service_healthy
+    ports:
+      - "5001:5000"                    # внешний порт для доступа к API
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=authservice-db;Database=authservice;Username=postgres;Password=postgres"  
+
+  bookingservice:
+    build:
+      context: .
+      dockerfile: Bookings/Presentation/Dockerfile
+    container_name: bookingservice-app
+    restart: unless-stopped
+    depends_on:
+      bookingservice-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "5002:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=bookingservice-db;Database=bookingservice;Username=postgres;Password=postgres"  
+      
+      KafkaSettings__BootstrapServers: "kafka:29092"
+      KafkaSettings__GroupId: "booking-service-group"
+      KafkaSettings__IncomingTopic: "event-updates"          # читает ответы от EventService
+      KafkaSettings__OutgoingTopic: "booking-events"   
+
+  eventservice:
+    build:
+      context: .
+      dockerfile: Events/Presentation/Dockerfile
+    container_name: eventservice-app
+    restart: unless-stopped
+    depends_on:
+      eventservice-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "5003:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=eventservice-db;Database=eventservice;Username=postgres;Password=postgres"  
+      KafkaSettings__BootstrapServers: "kafka:29092"
+      KafkaSettings__GroupId: "event-service-group"
+      KafkaSettings__IncomingTopic: "booking-events"         # читает запросы от BookingService
+      KafkaSettings__OutgoingTopic: "event-updates"  
+
 volumes:
   authservice_pgdata:
   bookingservice_pgdata:

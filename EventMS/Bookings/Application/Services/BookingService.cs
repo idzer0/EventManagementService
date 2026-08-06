@@ -3,11 +3,14 @@ using Application.Contracts;
 using Application.DTO;
 using Application.Mappers;
 using Domain.DomainExceptions;
-using Domain.Enums;
 using Domain.Models;
+using KafkaSettingsShared.Contracts;
+using KafkaSettingsShared.DTO;
+using KafkaSettingsShared.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using BookingRequest = KafkaSettingsShared.DTO.BookingRequest;
 
 namespace Application.Services;
 
@@ -77,10 +80,11 @@ public class BookingService : IBookingService
                 {
                     await _repoBooking.UpdateBookingAsync(booking, ct);
 
-                    var eventMessage = JsonSerializer.Serialize(new
+                    var eventMessage = JsonSerializer.Serialize(new BookingRequest()
                     {
-                        booking.EventId,
-                        Confirm = true,
+                        BookingId = booking.Id,
+                        EventId = booking.EventId,
+                        BookingActionType = BookingActionTypeEnum.Confirm,
                         CreatedAt = DateTime.UtcNow
                     });
 

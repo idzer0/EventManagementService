@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\Auth\Contracts\Contracts.csproj" />
+    <ProjectReference Include="..\..\Shared\KafkaSettings\KafkaSettingsShared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.15.0" />

@@ -1,18 +1,14 @@
-using Domain.Enums;
+using KafkaSettingsShared.Enums;
 
-namespace Application.DTO;
+namespace KafkaSettingsShared.DTO;
 
-public class BookingResponse
+public class BookingRequest
 {
     public Guid BookingId {get; set;}
 
     public Guid EventId {get; set;}
 
     public BookingActionTypeEnum BookingActionType { get; set; }
-
-    public bool IsSuccess { get; set; }
-
-    public string ErrorMessage { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; }
 }

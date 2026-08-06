@@ -1,18 +1,16 @@
 using Application.DiContext;
 using Application.Middleware;
+using Application.Services;
 using Application.ServicesBackground;
-using Presentation.DiContext;
-using Presentation.DiContext.Auth;
-using Presentation.DiContext.Presentation;
 using Infrastructure.DataAccess;
 using Infrastructure.DiContext;
 //using Infrastructure.Initializators;
 using Microsoft.EntityFrameworkCore;
-using Application.Services;
+using Presentation.DiContext;
+using Presentation.DiContext.Auth;
+using Presentation.DiContext.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration.AddJsonFile(builder.Configuration["PathToJwtSecret"] ?? string.Empty, optional: true, reloadOnChange: true);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
@@ -31,6 +29,7 @@ if (builder.Environment.IsDevelopment())
 }
 
 builder.Services.AddHostedService<BookingBackgroundProcessing>();
+
 
 var app = builder.Build();
 

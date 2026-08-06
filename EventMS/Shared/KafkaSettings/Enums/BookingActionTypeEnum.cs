@@ -1,4 +1,4 @@
-namespace Domain.Enums;
+namespace KafkaSettingsShared.Enums;
 
 public enum BookingActionTypeEnum
 {

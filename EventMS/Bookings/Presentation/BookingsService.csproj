@@ -19,4 +19,7 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\KafkaSettings\KafkaSettingsShared.csproj" />
+  </ItemGroup>
 </Project>

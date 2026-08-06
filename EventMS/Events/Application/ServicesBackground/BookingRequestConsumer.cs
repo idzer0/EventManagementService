@@ -1,12 +1,10 @@
 using System.Text.Json;
 using Application.Contracts;
-using Application.DTO;
-using Application.Services;
-using Confluent.Kafka;
-using Domain.DomainExceptions;
-using Domain.Enums;
+using KafkaSettingsShared.Contracts;
+using KafkaSettingsShared.DTO;
+using KafkaSettingsShared.Enums;
+using KafkaSettingsShared.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -15,8 +13,7 @@ namespace Application.ServicesBackground;
 public class BookingRequestConsumer(
     ILogger<BookingRequestConsumer> logger,
     IOptions<KafkaSettings> settings,
-    IServiceProvider serviceProvider,
-    IEventService eventService) : KafkaConsumerService(logger, settings, serviceProvider)
+    IServiceProvider serviceProvider) : KafkaConsumerService(logger, settings, serviceProvider)
 {
     protected override async Task HandleMessageAsync(
         string key,
@@ -26,8 +23,10 @@ public class BookingRequestConsumer(
     {
         // Проверить наличие мест, обновить AvailableSeats, сгенерировать ответ
         // и отправить ответное сообщение через IEventPublisher в топик OutgoingTopic
+
         var publisher = scopeServiceProvider.GetRequiredService<IEventPublisher>();
         var settings = scopeServiceProvider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+        var eventService = scopeServiceProvider.GetRequiredService<IEventService>();
 
         BookingRequest? bookingRequest = new();
         try
@@ -50,7 +49,7 @@ public class BookingRequestConsumer(
         bool isSuccess = false;
         try
         {
-            isSuccess = await ProcessBookingAsync(bookingRequest, ct); // ваша бизнес-логика
+            isSuccess = await ProcessBookingAsync(bookingRequest, eventService, ct); // ваша бизнес-логика
         }
         catch(Exception ex)
         {
@@ -73,11 +72,11 @@ public class BookingRequestConsumer(
     /// <summary>
     /// Обработка запроса от сервиса бронирований: подтвердить или отменить бронирование.
     /// </summary>
-    private async Task<bool> ProcessBookingAsync(BookingRequest request, CancellationToken ct)
+    private async Task<bool> ProcessBookingAsync(BookingRequest request, IEventService service, CancellationToken ct)
     {
         bool result = request.BookingActionType == BookingActionTypeEnum.Confirm
-            ? await eventService.ReserveSeat(request.EventId, ct)
-            : await eventService.ReleaseSeat(request.EventId, ct);
+            ? await service.ReserveSeat(request.EventId, ct)
+            : await service.ReleaseSeat(request.EventId, ct);
         return result;
     }
 }

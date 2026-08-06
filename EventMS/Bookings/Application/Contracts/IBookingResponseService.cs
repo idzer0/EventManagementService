@@ -1,4 +1,5 @@
 using Application.DTO;
+using KafkaSettingsShared.DTO;
 
 namespace Application.Contracts;
 

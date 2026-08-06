@@ -1,4 +1,4 @@
-namespace Application.Services;
+namespace KafkaSettingsShared.DTO;
 
 public class KafkaSettings
 {

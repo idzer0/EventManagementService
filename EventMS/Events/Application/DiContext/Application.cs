@@ -1,6 +1,10 @@
 using Application.Contracts;
 using Application.Services;
+using Application.ServicesBackground;
 using Confluent.Kafka;
+using KafkaSettingsShared.Contracts;
+using KafkaSettingsShared.DTO;
+using KafkaSettingsShared.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -50,6 +54,10 @@ public static class DependencyInjection
 
         services.Configure<KafkaSettings>(configuration.GetSection("KafkaSettings"));
 
-        services.AddScoped<IEventPublisher, KafkaEventPublisher>();        return services;
+        services.AddScoped<IEventPublisher, KafkaEventPublisher>();
+
+        services.AddHostedService<BookingRequestConsumer>();
+
+        return services;
     }
 }

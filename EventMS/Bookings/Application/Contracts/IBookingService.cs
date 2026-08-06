@@ -1,5 +1,6 @@
 using Application.DTO;
 using Domain.Models;
+using KafkaSettingsShared.Enums;
 
 namespace Application.Contracts;
 
