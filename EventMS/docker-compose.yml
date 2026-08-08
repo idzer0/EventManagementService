@@ -1,0 +1,158 @@
+services:
+  # ─────────────────────────── Инфраструктура обмена сообщениями ───────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: eventapi-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: eventapi-kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      # Внешний listener для подключения с хоста (например, из dotnet run локально).
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Два listener'а: INTERNAL — для сервисов внутри сети Docker, EXTERNAL — для хоста.
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+
+  # ─────────────────────────── Базы данных (по одной на сервис) ───────────────────────────
+  authservice-db:
+    image: postgres:16-alpine
+    container_name: authservice-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authservice
+    ports:
+      - "5435:5432"    
+    volumes:
+      - authservice_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d authservice"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bookingservice-db:
+    image: postgres:16-alpine
+    container_name: bookingservice-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bookingservice
+    ports:
+      - "5433:5432"
+    volumes:
+      - bookingservice_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bookingservice"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  eventservice-db:
+    image: postgres:16-alpine
+    container_name: eventservice-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eventservice
+    ports:
+      - "5434:5432"
+    volumes:
+      - eventservice_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eventservice"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+# ─────────────────────────── Микросервисы ───────────────────────────
+  authservice:
+    build:
+      context: .          # путь к папке с Dockerfile
+      dockerfile: Auth/Presentation/Dockerfile
+    container_name: authservice-app
+    restart: unless-stopped
+    depends_on:
+      authservice-db:
+        condition: service_healthy
+    ports:
+      - "5001:5000"                    # внешний порт для доступа к API
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=authservice-db;Database=authservice;Username=postgres;Password=postgres"  
+
+  bookingservice:
+    build:
+      context: .
+      dockerfile: Bookings/Presentation/Dockerfile
+    container_name: bookingservice-app
+    restart: unless-stopped
+    depends_on:
+      bookingservice-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "5002:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=bookingservice-db;Database=bookingservice;Username=postgres;Password=postgres"  
+      
+      KafkaSettings__BootstrapServers: "kafka:29092"
+      KafkaSettings__GroupId: "booking-service-group"
+      KafkaSettings__IncomingTopic: "event-updates"          # читает ответы от EventService
+      KafkaSettings__OutgoingTopic: "booking-events"   
+
+  eventservice:
+    build:
+      context: .
+      dockerfile: Events/Presentation/Dockerfile
+    container_name: eventservice-app
+    restart: unless-stopped
+    depends_on:
+      eventservice-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "5003:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=eventservice-db;Database=eventservice;Username=postgres;Password=postgres"  
+      KafkaSettings__BootstrapServers: "kafka:29092"
+      KafkaSettings__GroupId: "event-service-group"
+      KafkaSettings__IncomingTopic: "booking-events"         # читает запросы от BookingService
+      KafkaSettings__OutgoingTopic: "event-updates"  
+
+volumes:
+  authservice_pgdata:
+  bookingservice_pgdata:
+  eventservice_pgdata:
+

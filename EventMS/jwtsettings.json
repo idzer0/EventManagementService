@@ -1,0 +1,8 @@
+{
+  "Jwt": {
+    "SecretKey": "cDgqhBkCQFTNN1qs4sFvjp4br47ilemYbiA7VQFeJm3zxJvnkGt8wYqLOIyiGstuyTgRTW7XgR05LG1kTdNzEgjH08X9kzKetLvoOyCyVYgJ05SSDkZBhwkSL7TWnEmz",
+    "Issuer": "EventsMS",
+    "Audience": "EventsMS",
+    "ExpiresMinutes": "60"
+  }
+}
