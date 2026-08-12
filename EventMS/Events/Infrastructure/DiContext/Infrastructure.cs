@@ -1,10 +1,13 @@
 using Application.Contracts;
 using Infrastructure.DataAccess;
+using Infrastructure.DiContext.Redis;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace Infrastructure.DiContext;
 
@@ -18,6 +21,9 @@ public static class DependencyInjection
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IEventRepository, EventRepository>();
+
+        services.AddRedis(configuration);
 
         return services;
     }
