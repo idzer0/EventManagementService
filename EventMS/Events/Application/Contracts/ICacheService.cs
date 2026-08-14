@@ -20,12 +20,4 @@ public interface ICacheService
     /// <param name="databaseId">Номер БД.</param>
     /// <returns>true, если операция успешна.</returns>
     Task<bool> SetValueAsync<T>(string key, T value, TimeSpan? expiry = null, int databaseId = 0) where T : class;
-
-    /// <summary>
-    /// Удалить ключ.
-    /// </summary>
-    /// <param name="key">Ключ.</param>
-    /// <param name="databaseId">Номер БД.</param>
-    /// <returns>true, если ключ существовал и был удалён.</returns>
-    Task<bool> RemoveKeyAsync(string key, int databaseId = 0);
 }

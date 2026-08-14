@@ -15,18 +15,20 @@ namespace Infrastructure.Repositories;
 public class EventRepository : IEventRepository
 {
     private readonly AppDbContext _context;
+    private readonly IRedisCacheService _redis;
     private readonly ILogger<EventRepository> _logger;
 
-    public EventRepository(AppDbContext context, ILogger<EventRepository> logger)
+    public EventRepository(AppDbContext context, IRedisCacheService redis, ILogger<EventRepository> logger)
     {
         _context = context;
+        _redis = redis;
         _logger = logger;
     }
 
     /// <inheritdoc/>
-    public Task<IEnumerable<EventEntity>> GetAllAsync(CancellationToken ct)
+    public async Task<IEnumerable<EventEntity>> GetAllAsync(CancellationToken ct)
     {
-        return _context.Events.ToListAsync(ct);
+        return await _context.Events.ToListAsync(ct);
     }
 
     /// <inheritdoc/>
@@ -109,6 +111,11 @@ public class EventRepository : IEventRepository
         _context.Events.Update(updateEventRequest);
         await _context.SaveChangesAsync(ct);
 
+        if(!await _redis.RemoveKeyAsync($"event:{updateEventRequest.Id}"))
+        {
+            _logger.LogError("Ошибка удаления из кеша по ключу event:{value}", updateEventRequest.Id);
+        }
+
         _logger.LogInformation("Событие обновлено с Id: {Id}", updateEventRequest.Id);
 
         return await _context.Events.SingleAsync(e => e.Id == updateEventRequest.Id, ct);
@@ -122,6 +129,11 @@ public class EventRepository : IEventRepository
 
         _context.Events.Remove(ev);
         await _context.SaveChangesAsync(ct);
+
+        if(!await _redis.RemoveKeyAsync($"event:{id}"))
+        {
+            _logger.LogError("Ошибка удаления из кеша по ключу event:{value}", id);
+        }
 
         _logger.LogInformation("Событие с: {Id} удалено", id);
         return true;

@@ -8,4 +8,5 @@ public class RedisSettings
     public int SyncTimeout = 3000;
     public bool AbortOnConnectFail = false;
     public int ReconnectRetryPolicy = 5000;
+    public int DefaultTimeSpanMinutes = 60;
 }

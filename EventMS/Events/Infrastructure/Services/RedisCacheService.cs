@@ -1,11 +1,13 @@
 using Application.Contracts;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace Infrastructure.Services;
 
-public class RedisCacheService(IConnectionMultiplexer redis) : IRedisCacheService
+public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSettings> options) : IRedisCacheService
 {
     private readonly IConnectionMultiplexer _redis = redis;
+    private readonly IOptions<RedisSettings> _options = options;
 
     /// <inheritdoc/>
     public async Task<string?> GetValueAsync(string key, int databaseId = 0)
@@ -25,20 +27,16 @@ public class RedisCacheService(IConnectionMultiplexer redis) : IRedisCacheServic
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Key cannot be null or empty.", nameof(key));
 
-        if (value is null)
-            throw new ArgumentNullException(nameof(value));
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Value cannot be null or empty.", nameof(value));
 
         var db = _redis.GetDatabase(databaseId);
 
         bool setResult = await db.StringSetAsync(key, value);
         if (!setResult) return false;
 
-        if (expiry.HasValue)
-        {
-            await db.KeyExpireAsync(key, expiry.Value);
-        }
-
-        return true;
+        var expiration = expiry ?? TimeSpan.FromMinutes(_options.Value.DefaultTimeSpanMinutes);
+        return await db.StringSetAsync(key, value, expiration);
     }
 
     /// <inheritdoc/>

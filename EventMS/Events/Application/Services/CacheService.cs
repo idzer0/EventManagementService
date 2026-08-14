@@ -49,18 +49,4 @@ public class CacheService(IRedisCacheService cache, ILogger<CacheService> logger
             return false;
         }
     }
-
-    /// <inheritdoc/>
-    public async Task<bool> RemoveKeyAsync(string key, int databaseId = 0)
-    {
-        try
-        {
-            return await _cache.RemoveKeyAsync(key, databaseId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка удаления значения в Redis. Ключ: {key}", key);
-            return false;
-        }
-    }
 }
