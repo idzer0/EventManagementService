@@ -1,4 +1,5 @@
 using Application.Contracts;
+using Application.Services;
 using Infrastructure.DataAccess;
 using Infrastructure.DiContext.Redis;
 using Infrastructure.Repositories;
@@ -21,7 +22,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IEventRepository, EventRepository>();
-        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IRedisCacheService, RedisCacheService>();
 
         services.AddRedis(configuration);
 

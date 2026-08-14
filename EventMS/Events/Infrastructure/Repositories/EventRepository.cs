@@ -1,11 +1,11 @@
 using System.Data;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.DataAccess;
 using Application.Contracts;
-using Microsoft.Extensions.Logging;
-using Domain.Models;
 using Application.DTO;
 using Domain.DomainExceptions;
+using Domain.Models;
+using Infrastructure.DataAccess;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
@@ -24,9 +24,9 @@ public class EventRepository : IEventRepository
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<EventEntity>> GetAllAsync(CancellationToken ct)
+    public Task<IEnumerable<EventEntity>> GetAllAsync(CancellationToken ct)
     {
-        return await _context.Events.ToListAsync(ct);
+        return _context.Events.ToListAsync(ct);
     }
 
     /// <inheritdoc/>
@@ -35,6 +35,16 @@ public class EventRepository : IEventRepository
         var ev = await _context.Events.FirstOrDefaultAsync(e => e.Id == id, ct);
 
         return ev;
+    }
+
+    /// <inheritdoc/>
+    public Task<EventEntity[]> GetTopSaledAsync(CancellationToken ct)
+    {
+        return _context.Events
+            .Where(e => e.TotalSeats > 0)
+            .OrderByDescending(e => (double)(e.TotalSeats - e.AvailableSeats) / e.TotalSeats)
+            .Take(10)
+            .ToArrayAsync(ct);
     }
 
     /// <inheritdoc/>

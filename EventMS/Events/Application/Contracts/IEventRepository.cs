@@ -16,6 +16,11 @@ public interface IEventRepository
     Task<IEnumerable<EventEntity>> GetAllAsync(CancellationToken ct);
 
     /// <summary>
+    /// Возвращает top 10 самых продаваемых событий
+    /// </summary>
+    Task<EventEntity[]> GetTopSaledAsync(CancellationToken ct);
+
+    /// <summary>
     /// Возвращает количество событий
     /// </summary>
     Task<int> EventsCountAsync(EventsFilter filter, CancellationToken ct);

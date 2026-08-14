@@ -16,6 +16,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IEventService, EventService>();
+        services.AddScoped<ICacheService, CacheService>();
 
         // Регистрация продюсера
         services.AddSingleton<IProducer<string, string>>(sp =>
