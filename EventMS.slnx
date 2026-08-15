@@ -21,6 +21,8 @@
     <Project Path="EventMS/Events/Application/Application.csproj"/>
     <Project Path="EventMS/Events/Domain/Domain.csproj"/>
     <Project Path="EventMS/Events/Infrastructure/Infrastructure.csproj"/>
+    <Project Path="EventMS/Events/Tests/EventsTests.csproj"/>
+    <Project Path="EventMS/Events/TestsDb/EventsTestsDb.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Events/Presentation/">
     <Project Path="EventMS/Events/Presentation/EventsService.csproj"/>
