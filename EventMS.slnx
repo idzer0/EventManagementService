@@ -13,6 +13,8 @@
     <Project Path="EventMS/Bookings/Application/Application.csproj"/>
     <Project Path="EventMS/Bookings/Domain/Domain.csproj"/>
     <Project Path="EventMS/Bookings/Infrastructure/Infrastructure.csproj"/>
+    <Project Path="EventMS/Bookings/Tests/BookingsTests.csproj"/>
+    <Project Path="EventMS/Bookings/TestsDb/BookingsTestsDb.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Bookings/Presentation/">
     <Project Path="EventMS/Bookings/Presentation/BookingsService.csproj"/>

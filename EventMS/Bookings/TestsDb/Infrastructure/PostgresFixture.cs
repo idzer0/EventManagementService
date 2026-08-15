@@ -1,12 +1,12 @@
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace Events.TestsDb.Infrastructure;
+namespace Bookings.TestsDb.Infrastructure;
 
 public class PostgresFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _pgcontainer = new PostgreSqlBuilder("postgres:16-alpine")
-        .WithDatabase("eventapi-test")
+        .WithDatabase("bookings-test")
         .WithTmpfsMount("/var/lib/postgresql/data")
         .Build();
 
@@ -15,7 +15,6 @@ public class PostgresFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         await _pgcontainer.StartAsync();
-        await _pgcontainer.ExecScriptAsync("CREATE EXTENSION IF NOT EXISTS pg_trgm;");
     }
 
     public async Task DisposeAsync()
@@ -28,7 +27,7 @@ public class PostgresFixture : IAsyncLifetime
     {
         await using var connection = new NpgsqlConnection(ConnectionString);
         await connection.OpenAsync();
-        var command = new NpgsqlCommand("TRUNCATE TABLE \"events\" RESTART IDENTITY CASCADE", connection);
+        var command = new NpgsqlCommand("TRUNCATE TABLE \"bookings\" RESTART IDENTITY CASCADE", connection);
         await command.ExecuteNonQueryAsync();
     }
 }

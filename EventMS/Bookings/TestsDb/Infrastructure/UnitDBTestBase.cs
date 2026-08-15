@@ -4,10 +4,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace Events.TestsDb.Infrastructure;
+namespace Bookings.TestsDb.Infrastructure;
 
 /// <summary>
-/// Базовый класс Unit тестов c БД
+/// Базовый класс Unit тестов с БД
 /// </summary>
 public abstract class UnitDBTestBase(PostgresFixture fixture)
 {
@@ -28,6 +28,6 @@ public abstract class UnitDBTestBase(PostgresFixture fixture)
     {
         NpgsqlConnection.ClearAllPools();
         await using var context = CreateContext();
-        await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"events\" RESTART IDENTITY CASCADE");
+        await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"bookings\" RESTART IDENTITY CASCADE");
     }
 }

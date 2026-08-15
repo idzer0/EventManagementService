@@ -49,28 +49,6 @@ public static class TestDataHelper
         return events;
     }
 
-    // public static UserEntity GetTestUser()
-    // {
-    //     return new UserEntity()
-    //     {
-    //         Id = 1,
-    //         Login = "user",
-    //         PasswordHash = "1",
-    //         Role = UsersRole.User
-    //     };
-    // }
-
-    // public static UserEntity GetTestAdmin()
-    // {
-    //     return new UserEntity()
-    //     {
-    //         Id = 2,
-    //         Login = "admin",
-    //         PasswordHash = "2",
-    //         Role = UsersRole.Admin
-    //     };
-    // }
-
     public static ICurrentUserService GetCurrentUserService(int? userId, UsersRole? role)
     {
         Mock<ICurrentUserService> cus = new();
