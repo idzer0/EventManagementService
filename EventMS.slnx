@@ -5,6 +5,7 @@
     <Project Path="EventMS/Auth/Domain/Domain.csproj"/>
     <Project Path="EventMS/Auth/Contracts/Contracts.csproj"/>
     <Project Path="EventMS/Auth/Infrastructure/Infrastructure.csproj"/>
+    <Project Path="EventMS/Auth/TestsDb/AuthTestsDb.csproj"/>
   </Folder>
   <Folder Name="/EventMS/Auth/Presentation/">
     <Project Path="EventMS/Auth/Presentation/AuthService.csproj"/>
