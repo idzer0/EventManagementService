@@ -3,6 +3,7 @@ using Application.Services;
 using Domain.Models;
 using Infrastructure.DataAccess;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -37,7 +38,7 @@ public class DbContextMocker()
     {
         AddItemsToDbContext(dbContext, items);
 
-        IEventRepository repo =  new EventRepository(dbContext, redis, NullLogger<EventRepository>.Instance);
+        IEventRepository repo = new EventRepository(dbContext, redis, NullLogger<EventRepository>.Instance);
 
         return new EventService(repo, cashe, NullLogger<EventService>.Instance);
     }
@@ -48,7 +49,7 @@ public class DbContextMocker()
         context.SaveChanges();
     }
 
-    private void AddItemsToDbContext<TEntity>(AppDbContext context, List<TEntity>? items) where TEntity: class
+    private void AddItemsToDbContext<TEntity>(AppDbContext context, List<TEntity>? items) where TEntity : class
     {
         if (items?.Count > 0)
         {
