@@ -162,6 +162,7 @@ services:
       KafkaSettings__OutgoingTopic: "event-updates"
       RedisSettings__Server: "redis"
       RedisSettings__Port: "6379"
+      RedisSettings__Password: ""
 
 volumes:
   authservice_pgdata:

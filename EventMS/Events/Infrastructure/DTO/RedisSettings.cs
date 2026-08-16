@@ -1,12 +1,12 @@
 
 public class RedisSettings
 {
-    public string Server = "localhost";
-    public int Port = 6379;
-    public string Password = "secret";
-    public int ConnectTimeout = 5000;
-    public int SyncTimeout = 3000;
-    public bool AbortOnConnectFail = false;
-    public int ReconnectRetryPolicy = 5000;
-    public int DefaultTimeSpanMinutes = 60;
+    public string Server {get; set;} = "localhost";
+    public int Port {get; set;} = 6379;
+    public string Password {get; set;} = "secret";
+    public int ConnectTimeout {get; set;} = 5000;
+    public int SyncTimeout {get; set;} = 3000;
+    public bool AbortOnConnectFail {get; set;} = false;
+    public int ReconnectRetryPolicy {get; set;} = 5000;
+    public int DefaultTimeSpanMinutes {get; set;} = 60;
 }

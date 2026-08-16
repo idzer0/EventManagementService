@@ -5,7 +5,7 @@ using StackExchange.Redis;
 
 namespace Infrastructure.Services;
 
-public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSettings> options, Logger<RedisCacheService> logger) : IRedisCacheService
+public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSettings> options, ILogger<RedisCacheService> logger) : IRedisCacheService
 {
     private readonly IConnectionMultiplexer _redis = redis;
     private readonly IOptions<RedisSettings> _options = options;
@@ -41,9 +41,6 @@ public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSetti
         }
 
         var db = _redis.GetDatabase(databaseId);
-
-        bool setResult = await db.StringSetAsync(key, value);
-        if (!setResult) return false;
 
         var expiration = expiry ?? TimeSpan.FromMinutes(_options.Value.DefaultTimeSpanMinutes);
         return await db.StringSetAsync(key, value, expiration);
