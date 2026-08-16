@@ -21,19 +21,11 @@ namespace Events.Tests;
 
 public class EventsCacheOperations
 {
-    // private readonly Mock<IEventRepository> _mockRepository;
-    // private readonly IEventService _service;
-    // private readonly Mock<ICacheService> _cache;
-    // private readonly Mock<IRedisCacheService> _redis;
     private readonly DbContextMocker _dbContextMocker;
 
     public EventsCacheOperations ()
     {
         _dbContextMocker = new DbContextMocker();
-        // _mockRepository = new Mock<IEventRepository>();
-        // _cache = new Mock<ICacheService>();
-        // _redis = new Mock<IRedisCacheService>();
-        // _service = new EventService(_mockRepository.Object, _cache.Object, NullLogger<EventService>.Instance);
     }
 
     [Fact]
@@ -53,7 +45,7 @@ public class EventsCacheOperations
         var cachedJson = JsonSerializer.Serialize(cachedEvents);
 
         var redisMock = new Mock<IRedisCacheService>();
-        redisMock.Setup(c => c.GetValueAsync("event:top10", It.IsAny<int>()))
+        redisMock.Setup(c => c.GetValueAsync(RedisValueKeys.Top10Saled, It.IsAny<int>()))
                  .ReturnsAsync(cachedJson);
 
         var cache = new CacheService(redisMock.Object, NullLogger<CacheService>.Instance);
@@ -95,9 +87,9 @@ public class EventsCacheOperations
         var expectedJson = JsonSerializer.Serialize(eventsFromDb);
 
         var redisMock = new Mock<IRedisCacheService>();
-        redisMock.Setup(c => c.GetValueAsync($"event:{eventId}", It.IsAny<int>()))
+        redisMock.Setup(c => c.GetValueAsync(RedisValueKeys.EventKey(eventId), It.IsAny<int>()))
                  .ReturnsAsync((string?)null); // нет кеша
-        redisMock.Setup(c => c.SetValueAsync($"event:{eventId}", expectedJson, It.IsAny<TimeSpan?>(), It.IsAny<int>()))
+        redisMock.Setup(c => c.SetValueAsync(RedisValueKeys.EventKey(eventId), expectedJson, It.IsAny<TimeSpan?>(), It.IsAny<int>()))
                  .ReturnsAsync(true);
 
         var cache = new CacheService(redisMock.Object, NullLogger<CacheService>.Instance);
@@ -115,7 +107,7 @@ public class EventsCacheOperations
         Assert.Equal(eventId, result.Id);
         // Проверяем, что репозиторий вызывался один раз
         repoMock.Verify(r => r.GetByIdAsync(eventId, It.IsAny<CancellationToken>()), Times.Once);
-        redisMock.Verify(c => c.SetValueAsync($"event:{eventId}", expectedJson, It.IsAny<TimeSpan?>(), It.IsAny<int>()), Times.Once);
+        redisMock.Verify(c => c.SetValueAsync(RedisValueKeys.EventKey(eventId), expectedJson, It.IsAny<TimeSpan?>(), It.IsAny<int>()), Times.Once);
     }
 
 
@@ -136,7 +128,7 @@ public class EventsCacheOperations
         var updatedEvent = EventMapper.MapToEntity(eventId, eventRequest);
 
         var redisMock = new Mock<IRedisCacheService>();
-        redisMock.Setup(c => c.RemoveKeyAsync($"event:{eventId}", It.IsAny<int>()))
+        redisMock.Setup(c => c.RemoveKeyAsync(RedisValueKeys.EventKey(eventId), It.IsAny<int>()))
                  .ReturnsAsync(true);
 
         var cache = new CacheService(redisMock.Object, NullLogger<CacheService>.Instance);
@@ -155,7 +147,7 @@ public class EventsCacheOperations
 
         // Assert
         // Проверяем, что репозиторий вызывался один раз
-        redisMock.Verify(c => c.RemoveKeyAsync($"event:{eventId}", It.IsAny<int>()), Times.Once);
+        redisMock.Verify(c => c.RemoveKeyAsync(RedisValueKeys.EventKey(eventId), It.IsAny<int>()), Times.Once);
     }
 
 }

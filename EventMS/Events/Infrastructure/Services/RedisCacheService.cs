@@ -1,10 +1,11 @@
 using Application.Contracts;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace Infrastructure.Services;
 
-public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSettings> options) : IRedisCacheService
+public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSettings> options, Logger<RedisCacheService> logger) : IRedisCacheService
 {
     private readonly IConnectionMultiplexer _redis = redis;
     private readonly IOptions<RedisSettings> _options = options;
@@ -13,7 +14,10 @@ public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSetti
     public async Task<string?> GetValueAsync(string key, int databaseId = 0)
     {
         if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("Key cannot be null or empty.", nameof(key));
+        {
+            logger.LogWarning("Key for {param} cannot be null or empty.", nameof(this.GetValueAsync));
+            return null;
+        }
 
         var db = _redis.GetDatabase(databaseId);
         RedisValue value = await db.StringGetAsync(key);
@@ -25,10 +29,16 @@ public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSetti
     public async Task<bool> SetValueAsync(string key, string value, TimeSpan? expiry = null, int databaseId = 0)
     {
         if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("Key cannot be null or empty.", nameof(key));
+        {
+            logger.LogWarning("Key for {param} cannot be null or empty.", nameof(this.SetValueAsync));
+            return false;
+        }
 
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Value cannot be null or empty.", nameof(value));
+        {
+            logger.LogWarning("Value for {param} cannot be null or empty.", nameof(this.SetValueAsync));
+            return false;
+        }
 
         var db = _redis.GetDatabase(databaseId);
 
@@ -43,7 +53,10 @@ public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSetti
     public async Task<bool> RemoveKeyAsync(string key, int databaseId = 0)
     {
         if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("Key cannot be null or empty.", nameof(key));
+        {
+            logger.LogWarning("Key for {param} cannot be null or empty.", nameof(this.RemoveKeyAsync));
+            return false;
+        }
 
         var db = _redis.GetDatabase(databaseId);
 

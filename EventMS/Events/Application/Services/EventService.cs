@@ -48,12 +48,12 @@ public class EventService : IEventService
     /// <inheritdoc/>
     public async Task<EventResponse[]> GetTopSaledAsync(CancellationToken ct)
     {
-        EventEntity[] top10 = await _cache.GetValueAsync<EventEntity[]>("event:top10");
+        EventEntity[] top10 = await _cache.GetValueAsync<EventEntity[]>(RedisValueKeys.Top10Saled);
 
         if (top10 is null)
         {
             top10 = await _repository.GetTopSaledAsync(ct);
-            await _cache.SetValueAsync("event:top10", JsonSerializer.Serialize(top10));
+            await _cache.SetValueAsync(RedisValueKeys.Top10Saled, top10);
         }
 
         return Array.ConvertAll(top10, e => EventMapper.MapToResponse(e));
@@ -62,14 +62,14 @@ public class EventService : IEventService
     /// <inheritdoc/>
     public async Task<EventResponse> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        EventEntity? ev = await _cache.GetValueAsync<EventEntity>($"event:{id}");
+        EventEntity? ev = await _cache.GetValueAsync<EventEntity>(RedisValueKeys.EventKey(id));
 
         if (ev is null)
         {
             ev = await _repository.GetByIdAsync(id, ct)
                 ?? throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.");
 
-            await _cache.SetValueAsync<EventEntity>($"event:{id}", ev);
+            await _cache.SetValueAsync<EventEntity>(RedisValueKeys.EventKey(id), ev);
         }
 
         return EventMapper.MapToResponse(ev);
