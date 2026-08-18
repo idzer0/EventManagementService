@@ -91,7 +91,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
+# ─────────────────────────── Кеширование (Redis) ───────────────────────────
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 # ─────────────────────────── Микросервисы ───────────────────────────
   authservice:
     build:
@@ -149,7 +159,10 @@ services:
       KafkaSettings__BootstrapServers: "kafka:29092"
       KafkaSettings__GroupId: "event-service-group"
       KafkaSettings__IncomingTopic: "booking-events"         # читает запросы от BookingService
-      KafkaSettings__OutgoingTopic: "event-updates"  
+      KafkaSettings__OutgoingTopic: "event-updates"
+      RedisSettings__Server: "redis"
+      RedisSettings__Port: "6379"
+      RedisSettings__Password: ""
 
 volumes:
   authservice_pgdata:

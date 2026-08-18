@@ -1,7 +1,7 @@
 using Application.Contracts;
 using Application.DTO;
-using Domain.Models;
 using Auth.Contracts;
+using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +26,17 @@ public class EventController : ControllerBase
     public async Task<ActionResult<PaginatedResponse<EventResponse>>> GetAll([FromQuery] EventsFilter filter, CancellationToken ct)
     {
         var result = await _eventService.GetPaginatedEventsAsync(filter, ct);
+
+        return Ok(result);
+    }
+
+    [HttpGet("top")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventResponse[]>> GetTopSaled(CancellationToken ct)
+    {
+        var result = await _eventService.GetTopSaledAsync(ct);
 
         return Ok(result);
     }

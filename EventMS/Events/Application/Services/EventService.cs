@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Application.Contracts;
 using Application.DTO;
 using Application.Mappers;
@@ -13,13 +14,14 @@ namespace Application.Services;
 public class EventService : IEventService
 {
     private readonly IEventRepository _repository;
+    private readonly ICacheService _cache;
     private readonly ILogger<EventService> _logger;
 
-    public EventService(IEventRepository repository, ILogger<EventService> logger)
+    public EventService(IEventRepository repository, ICacheService cache, ILogger<EventService> logger)
     {
         _repository = repository;
+        _cache = cache;
         _logger = logger;
-
     }
 
     /// <inheritdoc/>
@@ -44,12 +46,33 @@ public class EventService : IEventService
     }
 
     /// <inheritdoc/>
+    public async Task<EventResponse[]> GetTopSaledAsync(CancellationToken ct)
+    {
+        EventEntity[] top10 = await _cache.GetValueAsync<EventEntity[]>(RedisValueKeys.Top10Saled);
+
+        if (top10 is null)
+        {
+            top10 = await _repository.GetTopSaledAsync(ct);
+            await _cache.SetValueAsync(RedisValueKeys.Top10Saled, top10);
+        }
+
+        return Array.ConvertAll(top10, e => EventMapper.MapToResponse(e));
+    }
+
+    /// <inheritdoc/>
     public async Task<EventResponse> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var ev = await _repository.GetByIdAsync(id, ct);
+        EventEntity? ev = await _cache.GetValueAsync<EventEntity>(RedisValueKeys.EventKey(id));
 
-        return ev is null ? throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.")
-            : EventMapper.MapToResponse(ev);
+        if (ev is null)
+        {
+            ev = await _repository.GetByIdAsync(id, ct)
+                ?? throw new ObjectNotFoundDomainException($"Событие с Id {id} не найдено.");
+
+            await _cache.SetValueAsync<EventEntity>(RedisValueKeys.EventKey(id), ev);
+        }
+
+        return EventMapper.MapToResponse(ev);
     }
 
     /// <inheritdoc/>

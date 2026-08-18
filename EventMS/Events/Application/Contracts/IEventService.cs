@@ -15,6 +15,11 @@ public interface IEventService
     Task<PaginatedResponse<EventResponse>> GetPaginatedEventsAsync(EventsFilter filter, CancellationToken ct);
 
     /// <summary>
+    /// Получить список самых продаваемых событий.
+    /// </summary>
+    Task<EventResponse[]> GetTopSaledAsync(CancellationToken ct);
+
+    /// <summary>
     /// Получить событие по Id
     /// </summary>
     Task<EventResponse> GetByIdAsync(Guid eventId, CancellationToken ct);
