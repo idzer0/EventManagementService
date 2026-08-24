@@ -167,3 +167,42 @@ DELETE	/events/{id}	Удалить мероприятие
 
   или через .sql файлы:
   ./apply-migration-sql.sh /path/to/project [имя_миграции]
+
+## Наблюдаемость (Observability)
+Проект использует стек OpenTelemetry + Prometheus + Jaeger + Grafana для сбора, хранения и визуализации телеметрии: трассировок, метрик и (опционально) логов.
+
+### Как это работает
+Микросервис инструментирован с помощью OpenTelemetry SDK для .NET:
+
+Трассировки собираются через инструментации ASP.NET Core, HttpClient, Entity Framework Core и экспортируются в Jaeger по протоколу OTLP.
+
+Метрики (рантайм, ASP.NET Core) экспортируются в Prometheus через эндпоинт /metrics, который Prometheus периодически опрашивает (scrape).
+
+Grafana подключается к Prometheus как источнику данных для построения дашбордов.
+
+### Конфигурация сервисов
+В каждом сервисе добавлен метод расширения AddOpenTelemetryService, регистрирующий OpenTelemetry
+
+Каждому сервису в docker-compose.yml задаются стандартные переменные OpenTelemetry:
+OTEL_SERVICE_NAME и OTEL_SERVICE_VERSION используются для идентификации сервиса в Jaeger/Prometheus.
+OTEL_EXPORTER_OTLP_ENDPOINT указывает SDK, куда отправлять трассировки (в данном случае на Jaeger, который слушает OTLP gRPC на порту 4317).
+
+### Инфраструктура Observability
+В docker-compose.yml подняты три сервиса:
+
+Prometheus (порт 9090) собирает метрики с эндпоинтов /metrics каждого сервиса. Файл prometheus.yml должен быть настроен на обнаружение целей (scrape targets).
+
+Jaeger (порт 16686 – UI, 4317 – OTLP) принимает трассировки и предоставляет удобный интерфейс для их анализа.
+
+Grafana (порт 3000) используется для создания дашбордов на основе данных из Prometheus. Логин по умолчанию admin, пароль задаётся переменной GF_SECURITY_ADMIN_PASSWORD (в примере admin).
+
+Доступ к интерфейсам
+После запуска docker-compose up:
+
+Jaeger UI: http://localhost:16686
+
+Prometheus: http://localhost:9090
+
+Grafana: http://localhost:3000 (логин admin, пароль admin)
+
+Для Prometheus настройки описаны в prometheus.yml

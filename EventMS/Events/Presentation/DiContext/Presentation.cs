@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
+using Presentation.DiContext.OpenTelemetry;
 
 
 namespace Presentation.DiContext.Presentation;
@@ -12,7 +13,7 @@ public static class DependencyInjection
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
         services.AddOpenApi();
-
+        services.AddOpenTelemetryService();
         services.AddEndpointsApiExplorer();
 
         // Swagger

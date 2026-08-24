@@ -1,16 +1,16 @@
 using Application.DiContext;
 using Application.Middleware;
-using Application.Services;
 using Application.ServicesBackground;
 using Infrastructure.DataAccess;
 using Infrastructure.DiContext;
-//using Infrastructure.Initializators;
 using Microsoft.EntityFrameworkCore;
-using Presentation.DiContext;
 using Presentation.DiContext.Auth;
+using Presentation.DiContext.Logging;
 using Presentation.DiContext.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddCustomSerilog();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
@@ -47,27 +47,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapPrometheusScrapingEndpoint().AllowAnonymous();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// if (app.Environment.IsDevelopment())
-// {
-//     // Инициализация данных
-//     try
-//     {
-//         await DbInitializer.InitializeAsync(app.Services);
-//     }
-//     catch (Exception ex)
-//     {
-//         var logger = app.Services.GetRequiredService<ILogger<Program>>();
-//         logger.LogError(ex, "Ошибка при инициализации данных.");
-//         throw;
-//     }
-// }
 
 app.Run();
 
