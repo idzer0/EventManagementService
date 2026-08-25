@@ -102,6 +102,33 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+# ─────────────────────────── Observability ───────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: eventapi-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: eventapi-jaeger
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: eventapi-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
 # ─────────────────────────── Микросервисы ───────────────────────────
   authservice:
     build:
@@ -117,7 +144,11 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Host=authservice-db;Database=authservice;Username=postgres;Password=postgres"  
-
+      
+      OTEL_SERVICE_NAME: "eventms.authservice"
+      OTEL_SERVICE_VERSION: "0.0.1"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
+  
   bookingservice:
     build:
       context: .
@@ -140,6 +171,10 @@ services:
       KafkaSettings__IncomingTopic: "event-updates"          # читает ответы от EventService
       KafkaSettings__OutgoingTopic: "booking-events"   
 
+      OTEL_SERVICE_NAME: "eventms.bookingservice"
+      OTEL_SERVICE_VERSION: "0.0.1"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
+
   eventservice:
     build:
       context: .
@@ -156,16 +191,22 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Host=eventservice-db;Database=eventservice;Username=postgres;Password=postgres"  
+      
       KafkaSettings__BootstrapServers: "kafka:29092"
       KafkaSettings__GroupId: "event-service-group"
       KafkaSettings__IncomingTopic: "booking-events"         # читает запросы от BookingService
       KafkaSettings__OutgoingTopic: "event-updates"
+      
       RedisSettings__Server: "redis"
       RedisSettings__Port: "6379"
       RedisSettings__Password: ""
+
+      OTEL_SERVICE_NAME: "eventms.eventservice"
+      OTEL_SERVICE_VERSION: "0.0.1"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
 
 volumes:
   authservice_pgdata:
   bookingservice_pgdata:
   eventservice_pgdata:
-
+  grafana-data: 
