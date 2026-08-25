@@ -10,7 +10,7 @@ public static class DependencyInjection
     {
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource
-                .AddService("authservice", "0.0.1"))
+                .AddService("bookingservice", "0.0.1"))
             .WithTracing(tracing => tracing
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
