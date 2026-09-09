@@ -1,10 +1,10 @@
-﻿using Infrastructure.DataAccess;
+﻿using EventMS.Bookings.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace Bookings.TestsDb.Infrastructure;
+namespace EventMS.Bookings.TestsDb.Infrastructure;
 
 /// <summary>
 /// Базовый класс Unit тестов с БД

@@ -1,16 +1,16 @@
-using Application.Contracts;
-using Application.Services;
-using Infrastructure.DataAccess;
-using Infrastructure.DiContext.Redis;
-using Infrastructure.Repositories;
-using Infrastructure.Services;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.Services;
+using EventMS.Events.Infrastructure.DataAccess;
+using EventMS.Events.Infrastructure.DiContext.Redis;
+using EventMS.Events.Infrastructure.Repositories;
+using EventMS.Events.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Infrastructure.DiContext;
+namespace EventMS.Events.Infrastructure.DiContext;
 
 public static class DependencyInjection
 {

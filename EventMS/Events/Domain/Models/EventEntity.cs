@@ -1,4 +1,4 @@
-namespace Domain.Models;
+namespace EventMS.Events.Domain.Models;
 
 using System.ComponentModel.DataAnnotations;
 

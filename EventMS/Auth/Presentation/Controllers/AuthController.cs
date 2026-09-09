@@ -1,11 +1,11 @@
-using Application.Contracts;
-using Application.DTO;
-using Auth.Contracts;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Application.DTO;
+using EventMS.Auth.Contracts;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers;
+namespace EventMS.Auth.Presentation.Controllers;
 
 [ApiController]
 [AllowAnonymous]

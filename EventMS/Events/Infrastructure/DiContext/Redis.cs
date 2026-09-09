@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Infrastructure.DiContext.Redis;
+namespace EventMS.Events.Infrastructure.DiContext.Redis;
 
 public static class DependencyInjection
 {

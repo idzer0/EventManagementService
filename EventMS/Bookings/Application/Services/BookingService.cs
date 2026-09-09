@@ -1,9 +1,9 @@
 using System.Text.Json;
-using Application.Contracts;
-using Application.DTO;
-using Application.Mappers;
-using Domain.DomainExceptions;
-using Domain.Models;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Application.DTO;
+using EventMS.Bookings.Application.Mappers;
+using EventMS.Bookings.Domain.DomainExceptions;
+using EventMS.Bookings.Domain.Models;
 using KafkaSettingsShared.Contracts;
 using KafkaSettingsShared.DTO;
 using KafkaSettingsShared.Enums;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using BookingRequest = KafkaSettingsShared.DTO.BookingRequest;
 
-namespace Application.Services;
+namespace EventMS.Bookings.Application.Services;
 
 /// <summary>
 /// Сервис бронирования.

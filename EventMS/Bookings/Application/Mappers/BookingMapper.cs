@@ -1,7 +1,7 @@
-using Application.DTO;
-using Domain.Models;
+using EventMS.Bookings.Application.DTO;
+using EventMS.Bookings.Domain.Models;
 
-namespace Application.Mappers;
+namespace EventMS.Bookings.Application.Mappers;
 
 public static class BookingMapper
 {

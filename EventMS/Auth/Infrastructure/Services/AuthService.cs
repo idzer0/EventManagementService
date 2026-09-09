@@ -1,13 +1,13 @@
 using System.Security.Authentication;
 using System.Security.Claims;
-using Application.Contracts;
-using Application.DTO;
-using Domain.Models;
-using Auth.Contracts;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Application.DTO;
+using EventMS.Auth.Domain.Models;
+using EventMS.Auth.Contracts;
 using Microsoft.AspNetCore.Identity;
 using static System.Security.Claims.ClaimTypes;
 
-namespace Infrastructure.Services;
+namespace EventMS.Auth.Infrastructure.Services;
 
 public class AuthService(
     IJwtTokenGenerator jwtTokenGenerator,

@@ -1,19 +1,19 @@
-using Application.Contracts;
-using Application.Services;
-using Auth.Contracts;
-using Bookings.Tests.Infrastructure;
-using Bookings.TestsDb.Infrastructure;
-using Domain.DomainExceptions;
-using Domain.Models;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Application.Services;
+using EventMS.Auth.Contracts;
+using EventMS.Bookings.Tests.Infrastructure;
+using EventMS.Bookings.TestsDb.Infrastructure;
+using EventMS.Bookings.Domain.DomainExceptions;
+using EventMS.Bookings.Domain.Models;
 using FluentAssertions;
-using Infrastructure.Repositories;
-using Infrastructure.Services;
+using EventMS.Bookings.Infrastructure.Repositories;
+using EventMS.Bookings.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using static Bookings.TestsDb.Infrastructure.TestDataHelper;
+//using static Bookings.TestsDb.Infrastructure.TestDataHelper;
 
-namespace Bookings.TestsDb;
+namespace EventMS.Bookings.TestsDb;
 
 [Collection("PostgresCollection")]
 public class BookingsTableTests(PostgresFixture fixture) : UnitDBTestBase(fixture)

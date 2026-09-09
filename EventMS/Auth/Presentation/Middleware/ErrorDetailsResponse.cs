@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Middleware;
+namespace EventMS.Auth.Presentation.Middleware;
 
 public class ErrorDetailsResponse : ProblemDetails
 {

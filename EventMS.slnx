@@ -1,36 +1,39 @@
 <Solution>
-  <Folder Name="/EventMS/"/>
+  <Folder Name="/EventMS/" />
   <Folder Name="/EventMS/Auth/">
-    <Project Path="EventMS/Auth/Application/Application.csproj"/>
-    <Project Path="EventMS/Auth/Domain/Domain.csproj"/>
-    <Project Path="EventMS/Auth/Contracts/Contracts.csproj"/>
-    <Project Path="EventMS/Auth/Infrastructure/Infrastructure.csproj"/>
-    <Project Path="EventMS/Auth/TestsDb/AuthTestsDb.csproj"/>
+    <Project Path="EventMS/Auth/Application/EventMS.Auth.Application.csproj" />
+    <Project Path="EventMS/Auth/Domain/EventMS.Auth.Domain.csproj" />
+    <Project Path="EventMS/Auth/Contracts/EventMS.Auth.Contracts.csproj" />
+    <Project Path="EventMS/Auth/Infrastructure/EventMS.Auth.Infrastructure.csproj" />
+    <Project Path="EventMS/Auth/TestsDb/AuthTestsDb.csproj" />
   </Folder>
   <Folder Name="/EventMS/Auth/Presentation/">
-    <Project Path="EventMS/Auth/Presentation/AuthService.csproj"/>
+    <Project Path="EventMS/Auth/Presentation/EventMS.Auth.AuthService.csproj" />
   </Folder>
   <Folder Name="/EventMS/Bookings/">
-    <Project Path="EventMS/Bookings/Application/Application.csproj"/>
-    <Project Path="EventMS/Bookings/Domain/Domain.csproj"/>
-    <Project Path="EventMS/Bookings/Infrastructure/Infrastructure.csproj"/>
-    <Project Path="EventMS/Bookings/Tests/BookingsTests.csproj"/>
-    <Project Path="EventMS/Bookings/TestsDb/BookingsTestsDb.csproj"/>
+    <Project Path="EventMS/Bookings/Application/EventMS.Bookings.Application.csproj" />
+    <Project Path="EventMS/Bookings/Domain/EventMS.Bookings.Domain.csproj" />
+    <Project Path="EventMS/Bookings/Infrastructure/EventMS.Bookings.Infrastructure.csproj" />
+    <Project Path="EventMS/Bookings/Tests/BookingsTests.csproj" />
+    <Project Path="EventMS/Bookings/TestsDb/BookingsTestsDb.csproj" />
   </Folder>
   <Folder Name="/EventMS/Bookings/Presentation/">
-    <Project Path="EventMS/Bookings/Presentation/BookingsService.csproj"/>
+    <Project Path="EventMS/Bookings/Presentation/EventMS.Bookings.BookingsService.csproj" />
+  </Folder>
+  <Folder Name="/EventMS/e2eTests/">
+    <Project Path="EventMS/e2eTests/E2ETestsSimple/E2ETestsSimple.csproj" />
   </Folder>
   <Folder Name="/EventMS/Events/">
-    <Project Path="EventMS/Events/Application/Application.csproj"/>
-    <Project Path="EventMS/Events/Domain/Domain.csproj"/>
-    <Project Path="EventMS/Events/Infrastructure/Infrastructure.csproj"/>
-    <Project Path="EventMS/Events/Tests/EventsTests.csproj"/>
-    <Project Path="EventMS/Events/TestsDb/EventsTestsDb.csproj"/>
+    <Project Path="EventMS/Events/Application/EventMS.Events.Application.csproj" />
+    <Project Path="EventMS/Events/Domain/EventMS.Events.Domain.csproj" />
+    <Project Path="EventMS/Events/Infrastructure/EventMS.Events.Infrastructure.csproj" />
+    <Project Path="EventMS/Events/Tests/EventsTests.csproj" />
+    <Project Path="EventMS/Events/TestsDb/EventsTestsDb.csproj" />
   </Folder>
   <Folder Name="/EventMS/Events/Presentation/">
-    <Project Path="EventMS/Events/Presentation/EventsService.csproj"/>
+    <Project Path="EventMS/Events/Presentation/EventMS.Events.EventsService.csproj" />
   </Folder>
   <Folder Name="/EventMS/Shared/">
-    <Project Path="EventMS/Shared/KafkaSettings/KafkaSettingsShared.csproj"/>
+    <Project Path="EventMS/Shared/KafkaSettings/KafkaSettingsShared.csproj" />
   </Folder>
 </Solution>

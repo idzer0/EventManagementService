@@ -1,10 +1,11 @@
-using Application.DTO;
-using Domain.Models;
-using AuthTestsDb.Infrastructure;
+using EventMS.Auth.Application.DTO;
+using EventMS.Auth.Domain.Models;
+using EventMS.Auth.AuthTestsDb.Infrastructure;
 using FluentAssertions;
-using Infrastructure.Repositories;
+using EventMS.Auth.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using static EventMS.Auth.AuthTestsDb.Infrastructure.TestDataHelper;
 
 namespace AuthTestsDb;
 

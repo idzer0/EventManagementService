@@ -1,4 +1,4 @@
-namespace Application.Services;
+namespace EventMS.Events.Application.Services;
 
 public static class RedisValueKeys
 {

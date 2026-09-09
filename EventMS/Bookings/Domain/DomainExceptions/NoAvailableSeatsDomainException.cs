@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Domain.DomainExceptions;
+namespace EventMS.Bookings.Domain.DomainExceptions;
 
 /// <summary>
 /// Исключение для ошибок "Конфликт" (409)

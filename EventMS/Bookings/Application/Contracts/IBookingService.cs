@@ -1,8 +1,8 @@
-using Application.DTO;
-using Domain.Models;
+using EventMS.Bookings.Application.DTO;
+using EventMS.Bookings.Domain.Models;
 using KafkaSettingsShared.Enums;
 
-namespace Application.Contracts;
+namespace EventMS.Bookings.Application.Contracts;
 
 public interface IBookingService
 {

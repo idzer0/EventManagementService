@@ -1,13 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Application.Contracts;
+using EventMS.Auth.Application.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure.Services;
+namespace EventMS.Auth.Infrastructure.Services;
 
 public class JwtTokenGenerator(IConfiguration configuration)  : IJwtTokenGenerator
 {

@@ -1,12 +1,12 @@
-using Application.Services;
+using EventMS.Bookings.Application.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
-using Presentation.DiContext.OpenTelemetry;
+using EventMS.Bookings.Presentation.DiContext.OpenTelemetry;
 
 
-namespace Presentation.DiContext.Presentation;
+namespace EventMS.Bookings.Presentation.DiContext.Presentation;
 
 public static class DependencyInjection
 {

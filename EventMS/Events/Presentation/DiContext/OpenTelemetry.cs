@@ -2,7 +2,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace Presentation.DiContext.OpenTelemetry;
+namespace EventMS.Events.Presentation.DiContext.OpenTelemetry;
 
 public static class DependencyInjection
 {

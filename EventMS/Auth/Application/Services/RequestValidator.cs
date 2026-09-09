@@ -1,10 +1,10 @@
 
 using System.Text.RegularExpressions;
-using Application.Contracts;
-using Application.DTO;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Application.DTO;
 using FluentValidation;
 
-namespace Application.Services;
+namespace EventMS.Auth.Application.Services;
 
 public class RequestValidator : AbstractValidator<UserLoginRequest>
 {

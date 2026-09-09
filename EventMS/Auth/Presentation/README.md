@@ -153,8 +153,22 @@ Grafana подключается к Prometheus как источнику дан�
 OTEL_SERVICE_NAME и OTEL_SERVICE_VERSION используются для идентификации сервиса в Jaeger/Prometheus.
 OTEL_EXPORTER_OTLP_ENDPOINT указывает SDK, куда отправлять трассировки (в данном случае на Jaeger, который слушает OTLP gRPC на порту 4317).
 
+### Контейнеризация
+Сборка контейнера выполняется командой:
+docker-compose build authservice
+
+Для изменений сервиса необходимо пересобрать контейнер.
+
+Запуск инфраструктуры вместе с сервисами выполняется из папки с файлом docker-compose.yml командой
+docker-compose up -d
+
+остановка инфраструктуры вместе с сервисами выполняется командой
+docker-compose down (для удалени volume используется ключ -v)
+
 ### Инфраструктура Observability
-В docker-compose.yml подняты три сервиса:
+В docker-compose.yml подняты 4 сервиса:
+
+Seq (порт 8080) собирает логи.
 
 Prometheus (порт 9090) собирает метрики с эндпоинтов /metrics каждого сервиса. Файл prometheus.yml должен быть настроен на обнаружение целей (scrape targets).
 
@@ -168,6 +182,8 @@ Grafana (порт 3000) используется для создания даш�
 Jaeger UI: http://localhost:16686
 
 Prometheus: http://localhost:9090
+
+Seq : http://localhost:8080
 
 Grafana: http://localhost:3000 (логин admin, пароль admin)
 

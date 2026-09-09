@@ -1,9 +1,9 @@
-using Application.Contracts;
-using Application.Services;
-using Auth.Contracts;
-using Domain.Models;
-using Infrastructure.DataAccess;
-using Infrastructure.Repositories;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Application.Services;
+using EventMS.Auth.Contracts;
+using EventMS.Bookings.Domain.Models;
+using EventMS.Bookings.Infrastructure.DataAccess;
+using EventMS.Bookings.Infrastructure.Repositories;
 using KafkaSettingsShared.Contracts;
 using KafkaSettingsShared.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 
-namespace Bookings.Tests.Infrastructure;
+namespace EventMS.Bookings.Tests.Infrastructure;
 
 public class DbContextMocker()
 {

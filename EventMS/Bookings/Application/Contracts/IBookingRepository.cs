@@ -1,6 +1,6 @@
-using Domain.Models;
+using EventMS.Bookings.Domain.Models;
 
-namespace Application.Contracts;
+namespace EventMS.Bookings.Application.Contracts;
 
 public interface IBookingRepository
 {

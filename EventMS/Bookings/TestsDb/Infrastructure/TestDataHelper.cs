@@ -1,9 +1,9 @@
-using Application.Contracts;
-using Auth.Contracts;
-using Domain.Models;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Auth.Contracts;
+using EventMS.Bookings.Domain.Models;
 using Moq;
 
-namespace Bookings.TestsDb.Infrastructure;
+namespace EventMS.Bookings.TestsDb.Infrastructure;
 
 public static class TestDataHelper
 {

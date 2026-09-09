@@ -1,9 +1,9 @@
 using System.Text.Json;
-using Application.Contracts;
-using Application.DTO;
-using Application.Mappers;
-using Application.Services;
-using Domain.Models;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Application.Mappers;
+using EventMS.Events.Application.Services;
+using EventMS.Events.Domain.Models;
 using Events.Tests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,8 +14,9 @@ using Microsoft.EntityFrameworkCore;
 // using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using static EventMS.Events.Application.Services.RedisValueKeys;
 
-namespace Events.Tests;
+namespace EventMS.Events.Tests;
 
 [Collection("Операции с кешем")]
 

@@ -1,11 +1,11 @@
-using Application.DiContext;
-using Application.Middleware;
-using Infrastructure.DataAccess;
-using Infrastructure.DiContext;
+using EventMS.Auth.Application.DiContext;
+using EventMS.Auth.Application.Middleware;
+using EventMS.Auth.Infrastructure.DataAccess;
+using EventMS.Auth.Infrastructure.DiContext;
 using Microsoft.EntityFrameworkCore;
-using Presentation.DiContext.Auth;
-using Presentation.DiContext.Logging;
-using Presentation.DiContext.Presentation;
+using EventMS.Auth.Presentation.DiContext.Auth;
+using EventMS.Auth.Presentation.DiContext.Logging;
+using EventMS.Auth.Presentation.DiContext.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
 

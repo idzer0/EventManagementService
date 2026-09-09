@@ -244,6 +244,18 @@ json
 
 Grafana подключается к Prometheus как источнику данных для построения дашбордов.
 
+### Контейнеризация
+Сборка контейнера выполняется командой:
+docker-compose build bookingservice
+
+Для изменений сервиса необходимо пересобрать контейнер.
+
+Запуск инфраструктуры вместе с сервисами выполняется из папки с файлом docker-compose.yml командой
+docker-compose up -d
+
+остановка инфраструктуры вместе с сервисами выполняется командой
+docker-compose down (для удалени volume используется ключ -v)
+
 ### Конфигурация сервисов
 В каждом сервисе добавлен метод расширения AddOpenTelemetryService, регистрирующий OpenTelemetry
 
@@ -252,7 +264,9 @@ OTEL_SERVICE_NAME и OTEL_SERVICE_VERSION используются для иде
 OTEL_EXPORTER_OTLP_ENDPOINT указывает SDK, куда отправлять трассировки (в данном случае на Jaeger, который слушает OTLP gRPC на порту 4317).
 
 ### Инфраструктура Observability
-В docker-compose.yml подняты три сервиса:
+В docker-compose.yml подняты четыре сервиса:
+
+Seq (порт 8080) собирает логи.
 
 Prometheus (порт 9090) собирает метрики с эндпоинтов /metrics каждого сервиса. Файл prometheus.yml должен быть настроен на обнаружение целей (scrape targets).
 
@@ -264,6 +278,8 @@ Grafana (порт 3000) используется для создания даш�
 После запуска docker-compose up:
 
 Jaeger UI: http://localhost:16686
+
+Seq : http://localhost:8080
 
 Prometheus: http://localhost:9090
 

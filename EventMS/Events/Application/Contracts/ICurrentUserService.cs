@@ -1,8 +1,7 @@
 using System.Security.Claims;
-using Domain.Models;
-using Auth.Contracts;
+using EventMS.Auth.Contracts;
 
-namespace Application.Contracts;
+namespace EventMS.Events.Application.Contracts;
 
 public interface ICurrentUserService
 {

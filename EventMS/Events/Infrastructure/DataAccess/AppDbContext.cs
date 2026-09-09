@@ -1,8 +1,8 @@
-using Domain.Models;
-using Infrastructure.DataAccess;
+using EventMS.Events.Domain.Models;
+using EventMS.Events.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.DataAccess;
+namespace EventMS.Events.Infrastructure.DataAccess;
 
 public class AppDbContext : DbContext
 {

@@ -1,12 +1,12 @@
-using Application.Contracts;
-using Infrastructure.DataAccess;
-using Infrastructure.Repositories;
-using Infrastructure.Services;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Infrastructure.DataAccess;
+using EventMS.Auth.Infrastructure.Repositories;
+using EventMS.Auth.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.DiContext;
+namespace EventMS.Auth.Infrastructure.DiContext;
 
 public static class DependencyInjection
 {

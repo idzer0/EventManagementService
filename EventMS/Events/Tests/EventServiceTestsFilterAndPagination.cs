@@ -1,13 +1,13 @@
-﻿using Application.Contracts;
-using Application.DTO;
-using Domain.Models;
+﻿using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Domain.Models;
 using Events.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Events.Tests;
+namespace EventMS.Events.Tests;
 
 [Collection("Фильтрация и пагинация")]
 public class EventServiceTestsFilterAndPagination

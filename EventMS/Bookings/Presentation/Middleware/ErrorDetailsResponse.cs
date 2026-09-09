@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace EventManagementService.Middleware;
+namespace EventMS.Bookings.Middleware;
 
 public class ErrorDetailsResponse : ProblemDetails
 {

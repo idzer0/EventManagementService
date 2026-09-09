@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\..\Auth\Contracts\Contracts.csproj" />
+    <ProjectReference Include="..\Domain\EventMS.Events.Domain.csproj" />
+    <ProjectReference Include="..\..\Auth\Contracts\EventMS.Auth.Contracts.csproj" />
     <ProjectReference Include="..\..\Shared\KafkaSettings\KafkaSettingsShared.csproj" />
   </ItemGroup>
   <ItemGroup>

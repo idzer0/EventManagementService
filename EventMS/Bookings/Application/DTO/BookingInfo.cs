@@ -1,7 +1,7 @@
-namespace Application.DTO;
+namespace EventMS.Bookings.Application.DTO;
 
 using System.ComponentModel.DataAnnotations;
-using Domain.Models;
+using EventMS.Bookings.Domain.Models;
 
 public class BookingInfo
 {

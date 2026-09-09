@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 using System.Xml;
-using Domain.DomainExceptions;
+using EventMS.Events.Domain.DomainExceptions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EventManagementService.Middleware;
+namespace EventMS.Events.Application.Middleware;
 
 /// <summary>
 /// Слой обработки ошибок, возникающих в процессе обработки запросов

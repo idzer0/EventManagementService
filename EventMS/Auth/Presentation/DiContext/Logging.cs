@@ -1,7 +1,7 @@
 using Serilog;
 using Serilog.Formatting.Compact;
 
-namespace Presentation.DiContext.Logging;
+namespace EventMS.Auth.Presentation.DiContext.Logging;
 
 public static class SerilogConfiguration
 {

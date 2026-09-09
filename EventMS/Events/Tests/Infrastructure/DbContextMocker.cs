@@ -1,12 +1,10 @@
-using Application.Contracts;
-using Application.Services;
-using Domain.Models;
-using Infrastructure.DataAccess;
-using Infrastructure.Repositories;
-using Infrastructure.Services;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.Services;
+using EventMS.Events.Domain.Models;
+using EventMS.Events.Infrastructure.DataAccess;
+using EventMS.Events.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 
 namespace Events.Tests.Infrastructure;
 

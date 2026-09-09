@@ -1,8 +1,8 @@
-using Domain.Models;
+using EventMS.Auth.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.DataAccess;
+namespace EventMS.Auth.Infrastructure.DataAccess;
 
 public class UserEntityConfiguration : IEntityTypeConfiguration<UserEntity>
 {

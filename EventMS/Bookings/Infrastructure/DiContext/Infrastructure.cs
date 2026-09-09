@@ -1,12 +1,12 @@
-using Application.Contracts;
-using Infrastructure.DataAccess;
-using Infrastructure.Repositories;
-using Infrastructure.Services;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Infrastructure.DataAccess;
+using EventMS.Bookings.Infrastructure.Repositories;
+using EventMS.Bookings.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.DiContext;
+namespace EventMS.Bookings.Infrastructure.DiContext;
 
 public static class DependencyInjection
 {

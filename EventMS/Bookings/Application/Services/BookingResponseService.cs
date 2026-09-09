@@ -1,12 +1,12 @@
-using Application.Contracts;
-using Application.DTO;
-using Domain.DomainExceptions;
-using Domain.Models;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Application.DTO;
+using EventMS.Bookings.Domain.DomainExceptions;
+using EventMS.Bookings.Domain.Models;
 using KafkaSettingsShared.DTO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.Services;
+namespace EventMS.Bookings.Application.Services;
 
 public class BookingResponseService(
     IBookingRepository repoBooking,

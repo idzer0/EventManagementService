@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Application.Contracts;
+using EventMS.Events.Application.Contracts;
 using KafkaSettingsShared.Contracts;
 using KafkaSettingsShared.DTO;
 using KafkaSettingsShared.Enums;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.ServicesBackground;
+namespace EventMS.Events.Application.ServicesBackground;
 
 public class BookingRequestConsumer(
     ILogger<BookingRequestConsumer> logger,

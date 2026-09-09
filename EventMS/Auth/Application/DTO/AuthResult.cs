@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace EventMS.Auth.Application.DTO;
 
 public class AuthResult
 {

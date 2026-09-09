@@ -1,7 +1,7 @@
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace Bookings.TestsDb.Infrastructure;
+namespace EventMS.Bookings.TestsDb.Infrastructure;
 
 public class PostgresFixture : IAsyncLifetime
 {

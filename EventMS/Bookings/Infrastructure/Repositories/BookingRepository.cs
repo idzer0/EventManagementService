@@ -1,12 +1,12 @@
 using System.Collections;
-using Application.Contracts;
-using Domain.DomainExceptions;
-using Domain.Models;
-using Infrastructure.DataAccess;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Domain.DomainExceptions;
+using EventMS.Bookings.Domain.Models;
+using EventMS.Bookings.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Repositories;
+namespace EventMS.Bookings.Infrastructure.Repositories;
 
 /// <summary>
 /// Репозиторий бронирования.

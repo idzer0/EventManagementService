@@ -1,10 +1,10 @@
-using Application.Contracts;
-using Domain.Models;
-using Infrastructure.DataAccess;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Domain.Models;
+using EventMS.Auth.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Repositories;
+namespace EventMS.Auth.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {

@@ -19,9 +19,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>    
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Auth\Contracts\Contracts.csproj" />
+    <ProjectReference Include="..\Domain\EventMS.Events.Domain.csproj" />
+    <ProjectReference Include="..\Application\EventMS.Events.Application.csproj" />
+    <ProjectReference Include="..\Infrastructure\EventMS.Events.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Auth\Contracts\EventMS.Auth.Contracts.csproj" />
   </ItemGroup>
 </Project>
