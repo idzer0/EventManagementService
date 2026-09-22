@@ -1,13 +1,13 @@
+using EventMS.Auth.Contracts;
 using EventMS.Bookings.Application.Contracts;
 using EventMS.Bookings.Application.Services;
-using EventMS.Auth.Contracts;
-using EventMS.Bookings.Tests.Infrastructure;
-using EventMS.Bookings.TestsDb.Infrastructure;
 using EventMS.Bookings.Domain.DomainExceptions;
 using EventMS.Bookings.Domain.Models;
-using FluentAssertions;
 using EventMS.Bookings.Infrastructure.Repositories;
 using EventMS.Bookings.Infrastructure.Services;
+using EventMS.Bookings.Tests.Infrastructure;
+using EventMS.Bookings.TestsDb.Infrastructure;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -72,6 +72,7 @@ public class BookingsTableTests(PostgresFixture fixture) : UnitDBTestBase(fixtur
         // Act
         var book = await repo.CreateBookingAsync(
             eventId,
+            currentUserService.UserId.Value,
             BookingStatusEnum.Pending,
             DateTimeOffset.UtcNow.AddDays(-1),
             CancellationToken.None);

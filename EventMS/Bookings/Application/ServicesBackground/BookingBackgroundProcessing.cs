@@ -8,6 +8,10 @@ namespace EventMS.Bookings.Application.ServicesBackground;
 
 public class BookingBackgroundProcessing : BackgroundService
 {
+    /// <summary>
+    /// Ключ регистрации фонового варианта IBookingService (isBackgroundServiceUsing: true).
+    /// </summary>
+    private const string BookingServiceKey = "background";
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BookingBackgroundProcessing> _logger;
 
@@ -31,8 +35,7 @@ public class BookingBackgroundProcessing : BackgroundService
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var _bookingService = scope.ServiceProvider.GetRequiredService<IBookingService>();
-
+                var _bookingService = scope.ServiceProvider.GetRequiredKeyedService<IBookingService>(BookingServiceKey);
                 var guids = await _bookingService.GetBookingIdsByStatusAsync(BookingStatusEnum.Pending, ct, maxConcurrency);
 
                 await Task.WhenAll(guids.Select(

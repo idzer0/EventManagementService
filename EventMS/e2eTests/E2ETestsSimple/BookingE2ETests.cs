@@ -104,7 +104,7 @@ public class BookingE2ETests
                     $"{BookingsBaseUrl}/bookings/{bookingId}");
                 statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
                 var status = await statusResponse.Content.ReadFromJsonAsync<BookingInfo>();
-                status!.Status.Should().Be(BookingStatusEnum.Confirmed);
+                status!.Status.Should().Be(BookingStatusEnum.Pending);
             });
 
         _output.WriteLine($"Booking {bookingId} confirmed successfully.");

@@ -43,11 +43,19 @@ public class BookingService : IBookingService
     /// <inheritdoc/>
     public async Task<BookingInfo> CreateBookingAsync(Guid eventId, CancellationToken ct)
     {
-        if (await _repoBooking.GetActiveBookingsAsync(ct) >= 10)
+        if (!_currentUserService.IsAllowUserOperation(_currentUserService.UserId))
+            throw new UnauthorizedAccessDomainException("Недостаточно прав");
+
+        if (await _repoBooking.GetActiveBookingsAsync(_currentUserService.UserId.Value, ct) >= 10)
             throw new NoAvailableSeatsDomainException("Бронь не может быть создана.");
 
         return BookingMapper.MapToResponse(
-            await _repoBooking.CreateBookingAsync(eventId, BookingStatusEnum.Pending, DateTimeOffset.UtcNow, ct));
+            await _repoBooking.CreateBookingAsync(
+                eventId,
+                _currentUserService.UserId.Value,
+                BookingStatusEnum.Pending,
+                DateTimeOffset.UtcNow,
+                ct));
     }
 
     /// <inheritdoc/>
@@ -141,7 +149,7 @@ public class BookingService : IBookingService
 
         await BookingDeleteAsync(booking);
     }
-    
+
     private async Task BookingRejectAsync(BookingEntity booking)
     {
         var eventMessage = JsonSerializer.Serialize(new BookingRequest()
