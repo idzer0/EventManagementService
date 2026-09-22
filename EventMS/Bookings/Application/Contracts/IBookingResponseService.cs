@@ -1,7 +1,7 @@
-using Application.DTO;
+using EventMS.Bookings.Application.DTO;
 using KafkaSettingsShared.DTO;
 
-namespace Application.Contracts;
+namespace EventMS.Bookings.Application.Contracts;
 
 public interface IBookingResponseService
 {

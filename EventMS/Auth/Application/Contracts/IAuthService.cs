@@ -1,6 +1,6 @@
-using Auth.Contracts;
+using EventMS.Auth.Contracts;
 
-namespace Application.Contracts;
+namespace EventMS.Auth.Application.Contracts;
 
 public interface IAuthService
 {

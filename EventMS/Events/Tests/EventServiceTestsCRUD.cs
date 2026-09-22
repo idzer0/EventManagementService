@@ -1,15 +1,15 @@
-﻿using Application.Contracts;
-using Application.DTO;
-using Application.Services;
-using Domain.Models;
+﻿using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Application.Services;
+using EventMS.Events.Domain.Models;
 using Events.Tests.Infrastructure;
 using FluentAssertions;
-using Infrastructure.Services;
+using EventMS.Events.Infrastructure.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
-namespace Events.Tests;
+namespace EventMS.Events.Tests;
 
 [Collection("Успешные сценарии CRUD")]
 public class EventServiceTestsCRUD

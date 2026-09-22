@@ -1,10 +1,10 @@
-﻿using Infrastructure.DataAccess;
+﻿using EventMS.Auth.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace AuthTestsDb.Infrastructure;
+namespace EventMS.Auth.AuthTestsDb.Infrastructure;
 
 /// <summary>
 /// Базовый класс Unit тестов для проверки ограничений БД

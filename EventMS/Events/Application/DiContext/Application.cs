@@ -1,6 +1,6 @@
-using Application.Contracts;
-using Application.Services;
-using Application.ServicesBackground;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.Services;
+using EventMS.Events.Application.ServicesBackground;
 using Confluent.Kafka;
 using KafkaSettingsShared.Contracts;
 using KafkaSettingsShared.DTO;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Application.DiContext;
+namespace EventMS.Events.Application.DiContext;
 
 public static class DependencyInjection
 {

@@ -1,4 +1,4 @@
-namespace Application.Contracts;
+namespace EventMS.Auth.Application.Contracts;
 
 public interface IPasswordHasher
 {

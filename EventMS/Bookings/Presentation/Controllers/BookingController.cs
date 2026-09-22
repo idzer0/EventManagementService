@@ -1,9 +1,9 @@
-using Application.Contracts;
-using Application.DTO;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Application.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers;
+namespace EventMS.Bookings.Presentation.Controllers;
 
 /// <summary>
 /// Контроллер бронирований.

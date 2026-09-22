@@ -2,7 +2,7 @@ services:
   # ─────────────────────────── Инфраструктура обмена сообщениями ───────────────────────────
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
-    container_name: eventapi-zookeeper
+    container_name: eventms-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -14,7 +14,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
-    container_name: eventapi-kafka
+    container_name: eventms-kafka
     depends_on:
       zookeeper:
         condition: service_healthy
@@ -36,6 +36,48 @@ services:
       interval: 10s
       timeout: 10s
       retries: 15
+
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.6.1
+  #   container_name: eventms-zookeeper
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   volumes:
+  #     - ./zookeeper.properties:/etc/kafka/zookeeper.properties
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "echo srvr | nc localhost 2181 | grep Mode || exit 1"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 20
+  #     start_period: 30s
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:7.6.1
+  #   container_name: eventms-kafka
+  #   depends_on:
+  #     zookeeper:
+  #       condition: service_healthy
+  #   ports:
+  #     # Внешний listener для подключения с хоста (например, из dotnet run локально).
+  #     - "9092:9092"
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     # KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 18000
+  #     # KAFKA_ZOOKEEPER_SESSION_TIMEOUT_MS: 18000
+  #     # Два listener'а: INTERNAL — для сервисов внутри сети Docker, EXTERNAL — для хоста.
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+  #     KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092
+  #     KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:29092 --list || exit 1"]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 15
 
   # ─────────────────────────── Базы данных (по одной на сервис) ───────────────────────────
   authservice-db:
@@ -103,9 +145,27 @@ services:
       timeout: 5s
       retries: 10
 # ─────────────────────────── Observability ───────────────────────────
+  seq:
+    image: datalust/seq:latest
+    container_name: eventms-seq
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_NOAUTHENTICATION: "true"
+    ports:
+      - "5341:5341"   # приём логов
+      - "8080:80"     # веб-интерфейс
+    volumes:
+      - seq-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   prometheus:
     image: prom/prometheus:v2.51.0
-    container_name: eventapi-prometheus
+    container_name: eventms-prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -113,7 +173,7 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one:1.56
-    container_name: eventapi-jaeger
+    container_name: eventms-jaeger
     ports:
       - "16686:16686"   # UI
       - "4317:4317"     # OTLP gRPC
@@ -122,7 +182,7 @@ services:
 
   grafana:
     image: grafana/grafana:10.4.2
-    container_name: eventapi-grafana
+    container_name: eventms-grafana
     ports:
       - "3000:3000"
     environment:
@@ -139,12 +199,14 @@ services:
     depends_on:
       authservice-db:
         condition: service_healthy
+      seq:
+        condition: service_healthy
     ports:
       - "5001:5000"                    # внешний порт для доступа к API
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://*:5000"
       ConnectionStrings__DefaultConnection: "Host=authservice-db;Database=authservice;Username=postgres;Password=postgres"  
-      
       OTEL_SERVICE_NAME: "eventms.authservice"
       OTEL_SERVICE_VERSION: "0.0.1"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
@@ -160,17 +222,18 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      seq:
+        condition: service_healthy
     ports:
       - "5002:5000"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://*:5000"
       ConnectionStrings__DefaultConnection: "Host=bookingservice-db;Database=bookingservice;Username=postgres;Password=postgres"  
-      
       KafkaSettings__BootstrapServers: "kafka:29092"
       KafkaSettings__GroupId: "booking-service-group"
       KafkaSettings__IncomingTopic: "event-updates"          # читает ответы от EventService
       KafkaSettings__OutgoingTopic: "booking-events"   
-
       OTEL_SERVICE_NAME: "eventms.bookingservice"
       OTEL_SERVICE_VERSION: "0.0.1"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
@@ -186,21 +249,21 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      seq:
+        condition: service_healthy
     ports:
       - "5003:5000"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://*:5000"
       ConnectionStrings__DefaultConnection: "Host=eventservice-db;Database=eventservice;Username=postgres;Password=postgres"  
-      
       KafkaSettings__BootstrapServers: "kafka:29092"
       KafkaSettings__GroupId: "event-service-group"
       KafkaSettings__IncomingTopic: "booking-events"         # читает запросы от BookingService
       KafkaSettings__OutgoingTopic: "event-updates"
-      
       RedisSettings__Server: "redis"
       RedisSettings__Port: "6379"
       RedisSettings__Password: ""
-
       OTEL_SERVICE_NAME: "eventms.eventservice"
       OTEL_SERVICE_VERSION: "0.0.1"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
@@ -210,3 +273,4 @@ volumes:
   bookingservice_pgdata:
   eventservice_pgdata:
   grafana-data: 
+  seq-data:

@@ -1,8 +1,8 @@
-using Domain.Models;
+using EventMS.Bookings.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.DataAccess;
+namespace EventMS.Bookings.Infrastructure.DataAccess;
 
 public class BookingEntityConfiguration : IEntityTypeConfiguration<BookingEntity>
 {

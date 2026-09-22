@@ -1,10 +1,10 @@
-﻿using Infrastructure.DataAccess;
+﻿using EventMS.Events.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Npgsql;
 using Testcontainers.PostgreSql;
 
-namespace Events.TestsDb.Infrastructure;
+namespace EventMS.Events.TestsDb.Infrastructure;
 
 /// <summary>
 /// Базовый класс Unit тестов c БД

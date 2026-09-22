@@ -1,13 +1,13 @@
-using Domain.Models;
+using EventMS.Bookings.Domain.Models;
 
-namespace Application.Contracts;
+namespace EventMS.Bookings.Application.Contracts;
 
 public interface IBookingRepository
 {
     /// <summary>
     /// Создание брони для указанного события
     /// </summary>
-    Task<BookingEntity> CreateBookingAsync(Guid evendId, BookingStatusEnum status, DateTimeOffset createdAt, CancellationToken ct);
+    Task<BookingEntity> CreateBookingAsync(Guid evendId, int userId, BookingStatusEnum status, DateTimeOffset createdAt, CancellationToken ct);
 
     /// <summary>
     /// Получение брони по идентификатору
@@ -33,5 +33,5 @@ public interface IBookingRepository
     /// Получить список активных бронирований для пользователя.
     /// Активные брони в статусах: Pending, Confirmed
     /// </summary>
-    Task<int> GetActiveBookingsAsync(CancellationToken ct);
+    Task<int> GetActiveBookingsAsync(int userId, CancellationToken ct);
 }

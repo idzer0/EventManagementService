@@ -1,12 +1,12 @@
-using Domain.DomainExceptions;
-using Domain.Models;
-using Bookings.Tests.Infrastructure;
+using EventMS.Bookings.Domain.DomainExceptions;
+using EventMS.Bookings.Domain.Models;
+using EventMS.Bookings.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Bookings.Tests;
+namespace EventMS.Bookings.Tests;
 
 [Collection("Успешные сценарии сервиса бронирования")]
 public class BookingServiceTestsPositive

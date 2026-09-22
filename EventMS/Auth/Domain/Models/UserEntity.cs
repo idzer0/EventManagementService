@@ -1,7 +1,7 @@
-namespace Domain.Models;
+namespace EventMS.Auth.Domain.Models;
 
 using System.ComponentModel.DataAnnotations;
-using Auth.Contracts;
+using EventMS.Auth.Contracts;
 
 public class UserEntity
 {

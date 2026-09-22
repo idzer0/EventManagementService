@@ -1,11 +1,10 @@
-using Application.Contracts;
-using Application.DTO;
-using Auth.Contracts;
-using Domain.Models;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Auth.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EventsService.Controllers;
+namespace EventMS.Events.Presentation.Controllers;
 
 /// <summary>
 /// Контроллер обработки событий

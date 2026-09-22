@@ -1,8 +1,8 @@
 using System.Security.Claims;
-using Domain.Models;
-using Auth.Contracts;
+using EventMS.Bookings.Domain.Models;
+using EventMS.Auth.Contracts;
 
-namespace Application.Contracts;
+namespace EventMS.Bookings.Application.Contracts;
 
 public interface ICurrentUserService
 {

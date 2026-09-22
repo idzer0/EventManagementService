@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
-using Application.Contracts;
+using EventMS.Auth.Application.Contracts;
 
-namespace Infrastructure.Services;
+namespace EventMS.Auth.Infrastructure.Services;
 
 public class PasswordHasher(IUserRepository userRepository) : IPasswordHasher
 {

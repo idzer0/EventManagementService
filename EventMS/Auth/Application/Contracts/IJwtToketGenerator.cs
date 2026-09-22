@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Application.Contracts;
+namespace EventMS.Auth.Application.Contracts;
 
 public interface IJwtTokenGenerator
 {

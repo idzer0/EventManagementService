@@ -3,7 +3,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
 using System.Xml;
-using Domain.DomainExceptions;
+using EventMS.Events.Domain.DomainExceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

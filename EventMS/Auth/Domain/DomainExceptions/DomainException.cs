@@ -1,4 +1,4 @@
-namespace Domain.DomainExceptions;
+namespace EventMS.Auth.Domain.DomainExceptions;
 
 /// <summary>
 /// Базовое доменное исключение

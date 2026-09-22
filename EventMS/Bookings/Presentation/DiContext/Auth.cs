@@ -2,7 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Presentation.DiContext.Auth;
+namespace EventMS.Bookings.Presentation.DiContext.Auth;
 
 public static class DependencyInjection
 {

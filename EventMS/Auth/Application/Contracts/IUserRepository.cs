@@ -1,7 +1,7 @@
-using Domain.Models;
+using EventMS.Auth.Domain.Models;
 using Microsoft.AspNetCore.Identity.Data;
 
-namespace Application.Contracts;
+namespace EventMS.Auth.Application.Contracts;
 
 public interface IUserRepository
 {

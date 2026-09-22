@@ -1,9 +1,9 @@
-using Events.TestsDb.Infrastructure;
+using EventMS.Events.TestsDb.Infrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Events.TestsDb;
+namespace EventMS.Events.TestsDb;
 
 [Collection("PostgresCollection")]
 public class SchemaTests (PostgresFixture fixture) : UnitDBTestBase(fixture)

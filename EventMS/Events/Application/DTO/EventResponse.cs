@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace EventMS.Events.Application.DTO;
 
 /// <summary>
 /// Сущность для ответов метода контроллера обработки событий

@@ -1,5 +1,5 @@
 
-namespace Application.Contracts;
+namespace EventMS.Events.Application.Contracts;
 
 public interface ICacheService
 {

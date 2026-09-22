@@ -1,4 +1,4 @@
-namespace Auth.Contracts;
+namespace EventMS.Auth.Contracts;
 
 public enum UsersRole : int
 {

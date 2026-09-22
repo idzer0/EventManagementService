@@ -1,6 +1,6 @@
-using Application.DTO;
+using EventMS.Events.Application.DTO;
 
-namespace Application.Contracts;
+namespace EventMS.Events.Application.Contracts;
 
 public interface IEventService
 {

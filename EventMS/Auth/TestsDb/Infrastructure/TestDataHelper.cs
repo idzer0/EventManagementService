@@ -1,9 +1,9 @@
-using Application.Contracts;
-using Auth.Contracts;
-using Domain.Models;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Contracts;
+using EventMS.Auth.Domain.Models;
 using Moq;
 
-namespace AuthTestsDb.Infrastructure;
+namespace EventMS.Auth.AuthTestsDb.Infrastructure;
 
 public static class TestDataHelper
 {

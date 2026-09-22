@@ -1,12 +1,12 @@
-using Application.DiContext;
-using Application.Middleware;
-using Application.ServicesBackground;
-using Infrastructure.DataAccess;
-using Infrastructure.DiContext;
+using EventMS.Bookings.Application.DiContext;
+using EventMS.Bookings.Application.Middleware;
+using EventMS.Bookings.Application.ServicesBackground;
+using EventMS.Bookings.Infrastructure.DataAccess;
+using EventMS.Bookings.Infrastructure.DiContext;
 using Microsoft.EntityFrameworkCore;
-using Presentation.DiContext.Auth;
-using Presentation.DiContext.Logging;
-using Presentation.DiContext.Presentation;
+using EventMS.Bookings.Presentation.DiContext.Auth;
+using EventMS.Bookings.Presentation.DiContext.Logging;
+using EventMS.Bookings.Presentation.DiContext.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
 

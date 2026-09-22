@@ -1,8 +1,8 @@
-using Domain.Models;
+using EventMS.Events.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.DataAccess;
+namespace EventMS.Events.Infrastructure.DataAccess;
 
 public class EventEntityConfiguration : IEntityTypeConfiguration<EventEntity>
 {

@@ -1,12 +1,13 @@
 using System.Text.Json;
-using Application.Contracts;
-using Application.DTO;
-using Application.Mappers;
-using Domain.DomainExceptions;
-using Domain.Models;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Application.Mappers;
+using EventMS.Events.Domain.DomainExceptions;
+using EventMS.Events.Domain.Models;
 using Microsoft.Extensions.Logging;
+using static EventMS.Events.Application.Mappers.EventMapper;
 
-namespace Application.Services;
+namespace EventMS.Events.Application.Services;
 
 /// <summary>
 /// Сервис обработки событий.

@@ -3,13 +3,13 @@ using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
 using System.Xml;
-using Domain.DomainExceptions;
+using EventMS.Bookings.Domain.DomainExceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Middleware;
+namespace EventMS.Bookings.Application.Middleware;
 
 /// <summary>
 /// Слой обработки ошибок, возникающих в процессе обработки запросов

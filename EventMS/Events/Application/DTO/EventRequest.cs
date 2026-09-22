@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace EventMS.Events.Application.DTO;
 
 using System.ComponentModel.DataAnnotations;
 

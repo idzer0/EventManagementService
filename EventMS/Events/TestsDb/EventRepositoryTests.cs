@@ -1,14 +1,15 @@
-using Application.Contracts;
-using Application.DTO;
-using Domain.Models;
-using Events.TestsDb.Infrastructure;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Domain.Models;
+using EventMS.Events.TestsDb.Infrastructure;
 using FluentAssertions;
-using Infrastructure.Repositories;
+using EventMS.Events.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using static EventMS.Events.TestsDb.Infrastructure.TestDataHelper;
 
-namespace Events.TestsDb;
+namespace EventMS.Events.TestsDb;
 
 [Collection("PostgresCollection")]
 public class EventRepositoryTests (PostgresFixture fixture) : UnitDBTestBase(fixture)

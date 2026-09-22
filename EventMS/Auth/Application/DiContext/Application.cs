@@ -1,9 +1,9 @@
-using Application.Contracts;
-using Application.Services;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Application.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Application.DiContext;
+namespace EventMS.Auth.Application.DiContext;
 
 public static class DependencyInjection
 {

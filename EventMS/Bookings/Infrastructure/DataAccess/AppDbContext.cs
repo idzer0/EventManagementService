@@ -1,8 +1,8 @@
-using Domain.Models;
-using Infrastructure.DataAccess;
+using EventMS.Bookings.Domain.Models;
+using EventMS.Bookings.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.DataAccess;
+namespace EventMS.Bookings.Infrastructure.DataAccess;
 
 public class AppDbContext : DbContext
 {

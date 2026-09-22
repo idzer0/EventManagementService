@@ -1,8 +1,8 @@
 using System.Text.Json;
-using Application.Contracts;
+using EventMS.Events.Application.Contracts;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Services;
+namespace EventMS.Events.Application.Services;
 
 public class CacheService(IRedisCacheService cache, ILogger<CacheService> logger) : ICacheService
 {

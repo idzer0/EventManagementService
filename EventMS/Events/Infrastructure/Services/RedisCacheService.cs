@@ -1,9 +1,9 @@
-using Application.Contracts;
+using EventMS.Events.Application.Contracts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
-namespace Infrastructure.Services;
+namespace EventMS.Events.Infrastructure.Services;
 
 public class RedisCacheService(IConnectionMultiplexer redis, IOptions<RedisSettings> options, ILogger<RedisCacheService> logger) : IRedisCacheService
 {

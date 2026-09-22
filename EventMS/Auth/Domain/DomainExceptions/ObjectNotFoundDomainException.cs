@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace Domain.DomainExceptions;
+namespace EventMS.Auth.Domain.DomainExceptions;
 
 /// <summary>
 /// Исключение для ошибок "Объект не найден" (404)

@@ -1,7 +1,7 @@
-using Application.DTO;
-using Domain.Models;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Domain.Models;
 
-namespace Application.Mappers;
+namespace EventMS.Events.Application.Mappers;
 
 public static class EventMapper
 {

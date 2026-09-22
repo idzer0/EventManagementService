@@ -1,8 +1,8 @@
-﻿using Application.Contracts;
-using Application.DTO;
-using Application.Services;
-using Domain.DomainExceptions;
-using Domain.Models;
+﻿using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Application.Services;
+using EventMS.Events.Domain.DomainExceptions;
+using EventMS.Events.Domain.Models;
 using Events.Tests.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
-namespace Events.Tests;
+namespace EventMS.Events.Tests;
 
 [Collection("Неуспешные сценарии")]
 public class EventServiceTestsOperationFails

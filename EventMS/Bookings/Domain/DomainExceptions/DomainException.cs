@@ -1,4 +1,4 @@
-namespace Domain.DomainExceptions;
+namespace EventMS.Bookings.Domain.DomainExceptions;
 
 /// <summary>
 /// Базовое доменное исключение

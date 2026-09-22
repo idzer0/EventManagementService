@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using Application.Contracts;
-using Auth.Contracts;
+using EventMS.Auth.Application.Contracts;
+using EventMS.Auth.Contracts;
 using Microsoft.AspNetCore.Http;
 
-namespace Infrastructure.Services;
+namespace EventMS.Auth.Infrastructure.Services;
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {

@@ -1,13 +1,13 @@
 using System.Data;
-using Application.Contracts;
-using Application.DTO;
-using Domain.DomainExceptions;
-using Domain.Models;
-using Infrastructure.DataAccess;
+using EventMS.Events.Application.Contracts;
+using EventMS.Events.Application.DTO;
+using EventMS.Events.Domain.DomainExceptions;
+using EventMS.Events.Domain.Models;
+using EventMS.Events.Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Repositories;
+namespace EventMS.Events.Infrastructure.Repositories;
 
 /// <summary>
 /// Репозиторий событий.

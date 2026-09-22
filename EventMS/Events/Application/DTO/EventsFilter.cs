@@ -1,4 +1,4 @@
-namespace Application.DTO;
+namespace EventMS.Events.Application.DTO;
 
 /// <summary>
 /// Фильтр для получения событий для постраничного вывода

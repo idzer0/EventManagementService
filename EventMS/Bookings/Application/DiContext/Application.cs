@@ -1,15 +1,16 @@
-using Application.Contracts;
-using Application.Services;
-using Application.ServicesBackground;
 using Confluent.Kafka;
+using EventMS.Bookings.Application.Contracts;
+using EventMS.Bookings.Application.Services;
+using EventMS.Bookings.Application.ServicesBackground;
 using KafkaSettingsShared.Contracts;
 using KafkaSettingsShared.DTO;
 using KafkaSettingsShared.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.DiContext;
+namespace EventMS.Bookings.Application.DiContext;
 
 public static class DependencyInjection
 {
